@@ -1,0 +1,197 @@
+<div style="padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 1200px;">
+  <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 20px;">Store Credits Manager</h1>
+
+  <% if flash[:notice] %>
+    <div style="padding: 12px 16px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 20px; color: #155724;">
+      <%= flash[:notice] %>
+    </div>
+  <% end %>
+
+  <% if flash[:alert] %>
+    <div style="padding: 12px 16px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 20px; color: #721c24;">
+      <%= flash[:alert] %>
+      <% if flash[:errors] %>
+        <details style="margin-top: 10px;">
+          <summary style="cursor: pointer; font-weight: 600;">View Errors (<%= flash[:errors].count %>)</summary>
+          <ul style="margin-top: 10px; padding-left: 20px;">
+            <% flash[:errors].each do |error| %>
+              <li><%= error %></li>
+            <% end %>
+          </ul>
+        </details>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Stats Cards -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+    <div style="padding: 16px; background: white; border: 1px solid #ddd; border-radius: 8px;">
+      <div style="font-size: 14px; color: #666; margin-bottom: 4px;">Total</div>
+      <div style="font-size: 28px; font-weight: 600;"><%= @stats[:total] %></div>
+    </div>
+    <div style="padding: 16px; background: white; border: 1px solid #ddd; border-radius: 8px;">
+      <div style="font-size: 14px; color: #666; margin-bottom: 4px;">Pending</div>
+      <div style="font-size: 28px; font-weight: 600; color: #ffa500;"><%= @stats[:pending] %></div>
+    </div>
+    <div style="padding: 16px; background: white; border: 1px solid #ddd; border-radius: 8px;">
+      <div style="font-size: 14px; color: #666; margin-bottom: 4px;">Completed</div>
+      <div style="font-size: 28px; font-weight: 600; color: #28a745;"><%= @stats[:completed] %></div>
+    </div>
+    <div style="padding: 16px; background: white; border: 1px solid #ddd; border-radius: 8px;">
+      <div style="font-size: 14px; color: #666; margin-bottom: 4px;">Failed</div>
+      <div style="font-size: 28px; font-weight: 600; color: #dc3545;"><%= @stats[:failed] %></div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div style="margin-bottom: 24px; display: flex; gap: 12px;">
+    <%= link_to 'Manage Campaigns',
+        campaigns_path,
+        style: 'padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 14px; display: inline-block;' %>
+  </div>
+
+  <!-- Upload Form -->
+  <div style="background: white; border: 1px solid #ddd; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+    <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 16px;">Upload CSV File</h2>
+
+    <div style="background: #f8f9fa; padding: 16px; border-radius: 4px; margin-bottom: 16px;">
+      <strong>CSV Format Requirements:</strong>
+      <ul style="margin: 8px 0 0 20px; line-height: 1.6;">
+        <li>Headers: <code>email</code>, <code>amount</code>, <code>expiry_hours</code></li>
+        <li><strong>email:</strong> Customer's email address</li>
+        <li><strong>amount:</strong> Store credit amount (e.g., 25.00)</li>
+        <li><strong>expiry_hours:</strong> Hours until credit expires (e.g., 72 for 3 days)</li>
+      </ul>
+
+      <details style="margin-top: 12px;">
+        <summary style="cursor: pointer; color: #007bff; font-weight: 600;">Download Sample CSV</summary>
+        <pre style="background: white; padding: 12px; border-radius: 4px; margin-top: 8px; overflow-x: auto;">email,amount,expiry_hours
+customer@example.com,25.00,72
+another@example.com,50.00,168</pre>
+      </details>
+    </div>
+
+    <%= form_with url: upload_store_credits_path, method: :post, multipart: true, local: true do |form| %>
+      <div style="margin-bottom: 16px;">
+        <%= form.label :campaign_id, "Campaign (Optional)", style: 'display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;' %>
+        <%= form.select :campaign_id,
+            options_for_select([["None - No Campaign", ""]] + @campaigns.map { |c| [c.name, c.id] }),
+            {},
+            style: 'padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px;' %>
+        <p style="font-size: 13px; color: #666; margin-top: 4px;">
+          Optionally assign credits to a campaign for tracking.
+          <%= link_to "Create new campaign", new_campaign_path, style: "color: #007bff;" %> if needed.
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 12px; align-items: flex-end;">
+        <div style="flex: 1;">
+          <%= form.file_field :csv_file,
+              accept: '.csv',
+              required: true,
+              style: 'padding: 8px; border: 1px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px;' %>
+        </div>
+        <%= form.submit 'Upload CSV',
+            style: 'padding: 10px 24px; background: #007bff; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 14px;',
+            onmouseover: "this.style.backgroundColor='#0056b3'",
+            onmouseout: "this.style.backgroundColor='#007bff'" %>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Credits List -->
+  <div style="background: white; border: 1px solid #ddd; border-radius: 8px; padding: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h2 style="font-size: 18px; font-weight: 600; margin: 0;">Recent Store Credits</h2>
+      <% if @store_credits.any? %>
+        <%= button_to 'Delete All', destroy_all_store_credits_path,
+            method: :delete,
+            data: { confirm: 'Are you sure you want to delete all store credits?' },
+            style: 'padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;',
+            onmouseover: "this.style.backgroundColor='#c82333'",
+            onmouseout: "this.style.backgroundColor='#dc3545'" %>
+      <% end %>
+    </div>
+
+    <% if @store_credits.any? %>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 2px solid #ddd; text-align: left;">
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Email</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Amount</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Campaign</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Expiry Hours</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Expires At</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Status</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Created</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @store_credits.each do |credit| %>
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px; font-size: 14px;"><%= credit.email %></td>
+                <td style="padding: 12px; font-size: 14px; font-weight: 600;">$<%= number_with_precision(credit.amount, precision: 2) %></td>
+                <td style="padding: 12px; font-size: 14px;">
+                  <% if credit.campaign %>
+                    <%= link_to credit.campaign.name, campaign_path(credit.campaign), style: "color: #007bff; text-decoration: none;" %>
+                  <% else %>
+                    <span style="color: #999;">-</span>
+                  <% end %>
+                </td>
+                <td style="padding: 12px; font-size: 14px;"><%= credit.expiry_hours %>h</td>
+                <td style="padding: 12px; font-size: 14px; <%= 'color: #dc3545;' if credit.expired? %>">
+                  <%= credit.expires_at.strftime('%Y-%m-%d %H:%M') %>
+                  <% if credit.expired? %>
+                    <span style="font-size: 12px; color: #dc3545;">(expired)</span>
+                  <% end %>
+                </td>
+                <td style="padding: 12px; font-size: 14px;">
+                  <span style="padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;
+                    <%= case credit.status
+                        when 'pending' then 'background: #fff3cd; color: #856404;'
+                        when 'processing' then 'background: #cce5ff; color: #004085;'
+                        when 'completed' then 'background: #d4edda; color: #155724;'
+                        when 'failed' then 'background: #f8d7da; color: #721c24;'
+                        end %>">
+                    <%= credit.status.capitalize %>
+                  </span>
+                </td>
+                <td style="padding: 12px; font-size: 14px; color: #666;">
+                  <%= time_ago_in_words(credit.created_at) %> ago
+                </td>
+                <td style="padding: 12px;">
+                  <%= button_to 'Delete', store_credit_path(credit),
+                      method: :delete,
+                      data: { confirm: 'Are you sure?' },
+                      style: 'padding: 6px 12px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;',
+                      onmouseover: "this.style.backgroundColor='#545b62'",
+                      onmouseout: "this.style.backgroundColor='#6c757d'" %>
+                </td>
+              </tr>
+              <% if credit.error_message.present? %>
+                <tr style="border-bottom: 1px solid #eee;">
+                  <td colspan="8" style="padding: 8px 12px; background: #f8d7da; font-size: 13px; color: #721c24;">
+                    <strong>Error:</strong> <%= credit.error_message %>
+                  </td>
+                </tr>
+              <% end %>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if @store_credits.count >= 100 %>
+        <p style="margin-top: 16px; color: #666; font-size: 14px; text-align: center;">
+          Showing latest 100 records
+        </p>
+      <% end %>
+    <% else %>
+      <div style="text-align: center; padding: 40px; color: #666;">
+        <p style="font-size: 16px; margin-bottom: 8px;">No store credits uploaded yet</p>
+        <p style="font-size: 14px;">Upload a CSV file to get started</p>
+      </div>
+    <% end %>
+  </div>
+</div>

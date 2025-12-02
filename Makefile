@@ -77,6 +77,38 @@ sync-shop:
 preview-schedule:
 	docker-compose exec web bundle exec whenever
 
+# Store Credits - cleanup expired credits
+credits-cleanup:
+	docker-compose exec web bundle exec rake store_credits:cleanup_expired
+
+# Store Credits - show statistics
+credits-stats:
+	docker-compose exec web bundle exec rake store_credits:stats
+
+# Store Credits - process all pending credits (queue jobs)
+credits-process:
+	docker-compose exec web bundle exec rake store_credits:process_all
+
+# Store Credits - process specific shop NOW (usage: make credits-process-shop SHOP=store.myshopify.com)
+credits-process-shop:
+	docker-compose exec web bundle exec rake store_credits:process_shop[$(SHOP)]
+
+# Test store credits - quick test (usage: make test-credits EMAIL=test@example.com)
+test-credits:
+	docker-compose exec web bundle exec rake test:credits:quick[$(EMAIL)]
+
+# Test - check if customer exists (usage: make test-customer EMAIL=test@example.com)
+test-customer:
+	docker-compose exec web bundle exec rake test:credits:check_customer[$(EMAIL)]
+
+# Test - create sample credits
+test-create-samples:
+	docker-compose exec web bundle exec rake test:credits:create_samples[5]
+
+# Test - detailed status of all credits
+test-credits-status:
+	docker-compose exec web bundle exec rake test:credits:detailed_status
+
 # Help
 help:
 	@echo "Available commands:"
@@ -96,4 +128,12 @@ help:
 	@echo "  make sync-shops  - Sync all shop data from Shopify"
 	@echo "  make sync-shop SHOP=domain - Sync specific shop"
 	@echo "  make preview-schedule - Preview the cron schedule"
+	@echo "  make credits-cleanup - Remove expired store credits"
+	@echo "  make credits-stats - Show store credits statistics"
+	@echo "  make credits-process - Process pending credits (queue jobs)"
+	@echo "  make credits-process-shop SHOP=domain - Process shop credits NOW"
+	@echo "  make test-credits EMAIL=email - Run quick store credits test"
+	@echo "  make test-customer EMAIL=email - Check if customer exists"
+	@echo "  make test-create-samples - Create 5 sample test credits"
+	@echo "  make test-credits-status - Show detailed credit status"
 	@echo "  make help        - Show this help message"

@@ -7,13 +7,38 @@
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
 
     <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
-    <script type="module" src="https://cdn.shopify.com/shopifycloud/app-bridge/v4/app-bridge-react.standalone.js"></script>
+
+    <script>
+      // Disable Turbo for Shopify embedded app to prevent navigation issues
+      if (typeof Turbo !== 'undefined') {
+        Turbo.session.drive = false;
+      }
+
+      // Initialize App Bridge
+      document.addEventListener('DOMContentLoaded', function() {
+        if (window.shopify && window.shopify.environment) {
+          var AppBridge = window['app-bridge'];
+          var createApp = AppBridge.default;
+
+          var host = new URLSearchParams(window.location.search).get('host');
+
+          if (host) {
+            window.app = createApp({
+              apiKey: '<%= ShopifyApp.configuration.api_key %>',
+              host: host,
+              forceRedirect: true
+            });
+          }
+        }
+      });
+    </script>
+
+    <%= javascript_importmap_tags %>
   </head>
 
-  <body>
+  <body data-turbo="false">
     <div id="app-container">
       <%= yield %>
     </div>

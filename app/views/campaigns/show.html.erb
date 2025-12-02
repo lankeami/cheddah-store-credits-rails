@@ -1,0 +1,111 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold"><%= @campaign.name %></h1>
+      <p class="text-gray-600 mt-2">Campaign ID: #<%= @campaign.id %></p>
+    </div>
+    <div class="space-x-2">
+      <%= link_to "Edit", edit_campaign_path(@campaign), class: "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded" %>
+      <%= link_to "Back", campaigns_path, class: "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded" %>
+    </div>
+  </div>
+
+  <% if @campaign.description.present? %>
+    <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <h2 class="text-lg font-semibold mb-2">Description</h2>
+      <p class="text-gray-700"><%= @campaign.description %></p>
+    </div>
+  <% end %>
+
+  <!-- Statistics -->
+  <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="text-sm text-gray-600 mb-1">Total Credits</div>
+      <div class="text-3xl font-bold text-gray-900"><%= @stats[:total_credits] %></div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="text-sm text-gray-600 mb-1">Total Amount</div>
+      <div class="text-3xl font-bold text-gray-900">$<%= number_with_precision(@stats[:total_amount], precision: 2) %></div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="text-sm text-gray-600 mb-1">Pending</div>
+      <div class="text-3xl font-bold text-yellow-600"><%= @stats[:pending] %></div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="text-sm text-gray-600 mb-1">Completed</div>
+      <div class="text-3xl font-bold text-green-600"><%= @stats[:completed] %></div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow p-6">
+      <div class="text-sm text-gray-600 mb-1">Failed</div>
+      <div class="text-3xl font-bold text-red-600"><%= @stats[:failed] %></div>
+    </div>
+  </div>
+
+  <!-- Credits List -->
+  <div class="bg-white rounded-lg shadow">
+    <div class="px-6 py-4 border-b border-gray-200">
+      <h2 class="text-xl font-semibold">Credits in this Campaign</h2>
+    </div>
+
+    <% if @credits.empty? %>
+      <div class="p-8 text-center text-gray-600">
+        No credits in this campaign yet.
+      </div>
+    <% else %>
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Error</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-gray-200">
+            <% @credits.each do |credit| %>
+              <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <% case credit.status %>
+                  <% when 'pending' %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                  <% when 'processing' %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Processing</span>
+                  <% when 'completed' %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                  <% when 'failed' %>
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Failed</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= credit.email %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">$<%= number_with_precision(credit.amount, precision: 2) %></td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                  <%= credit.expires_at.strftime("%b %d, %Y") %>
+                  <% if credit.expired? %>
+                    <span class="text-red-500 ml-1">(Expired)</span>
+                  <% end %>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= credit.created_at.strftime("%b %d, %Y") %></td>
+                <td class="px-6 py-4 text-sm text-red-600">
+                  <%= credit.error_message.present? ? truncate(credit.error_message, length: 50) : "-" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <% if @campaign.store_credits.count > 100 %>
+        <div class="px-6 py-4 border-t border-gray-200 text-sm text-gray-600">
+          Showing latest 100 credits out of <%= @campaign.total_credits_count %> total.
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</div>

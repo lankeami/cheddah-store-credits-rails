@@ -28,6 +28,35 @@ Comprehensive guide to using the Whenever gem for cron job scheduling.
 - Advanced troubleshooting
 - Best practices
 
+### [Store Credits Manager Guide](STORE_CREDITS_GUIDE.md) 💳
+Complete guide to the store credits bulk upload system.
+
+- CSV upload format and validation
+- Status tracking and management
+- Processing credits with background jobs
+- Rake tasks and automation
+- Troubleshooting and best practices
+
+### [Shopify Integration Guide](SHOPIFY_INTEGRATION.md) 🔌
+Technical documentation for Shopify GraphQL API integration.
+
+- GraphQL mutations and queries
+- Service layer architecture
+- Background job processing
+- Error handling and rate limiting
+- Testing and monitoring
+- Advanced usage patterns
+
+### [Testing Store Credits](TESTING_STORE_CREDITS.md) 🧪
+Complete guide to testing the store credits functionality.
+
+- Quick test steps
+- Detailed test scenarios
+- Integration tests
+- Debugging techniques
+- Performance testing
+- Automated test suite examples
+
 ## Other Documentation
 
 ### [Shop Sync Setup](../SHOP_SYNC_SETUP.md)

@@ -5,7 +5,10 @@
       "Bash(docker-compose exec web bundle exec rails runner:*)",
       "Bash(docker-compose exec:*)",
       "Bash(make preview-schedule:*)",
-      "Bash(make sync-shops:*)"
+      "Bash(make sync-shops:*)",
+      "Bash(make db-migrate:*)",
+      "Bash(make:*)",
+      "Bash(docker-compose logs:*)"
     ],
     "deny": [],
     "ask": []

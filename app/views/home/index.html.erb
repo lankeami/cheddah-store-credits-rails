@@ -14,11 +14,17 @@
   <% end %>
 
   <div style="margin-top: 20px;">
-    <h2>Quick Links</h2>
-    <ul>
-      <li>Build your app features here</li>
-      <li>Access Shopify API through the Shop model</li>
-      <li>Customize this view in app/views/home/index.html.erb</li>
-    </ul>
+    <h2>App Features</h2>
+    <div style="display: grid; gap: 16px; margin-top: 16px;">
+      <%= link_to campaigns_path, style: 'display: block; padding: 20px; background: white; border: 1px solid #ddd; border-radius: 8px; text-decoration: none; color: inherit; transition: box-shadow 0.2s;', onmouseover: "this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'", onmouseout: "this.style.boxShadow='none'" do %>
+        <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #28a745;">📊 Campaigns</h3>
+        <p style="margin: 0; color: #666; font-size: 14px;">Organize and track your store credit campaigns with detailed statistics</p>
+      <% end %>
+
+      <%= link_to store_credits_path, style: 'display: block; padding: 20px; background: white; border: 1px solid #ddd; border-radius: 8px; text-decoration: none; color: inherit; transition: box-shadow 0.2s;', onmouseover: "this.style.boxShadow='0 4px 12px rgba(0,0,0,0.1)'", onmouseout: "this.style.boxShadow='none'" do %>
+        <h3 style="margin: 0 0 8px 0; font-size: 18px; color: #007bff;">💳 Store Credits Manager</h3>
+        <p style="margin: 0; color: #666; font-size: 14px;">Upload CSV files to bulk create store credits for customers</p>
+      <% end %>
+    </div>
   </div>
 </div>

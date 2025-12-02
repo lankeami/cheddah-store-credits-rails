@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_12_01_000001) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_02_045943) do
+  create_table "campaigns", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "shop_id", null: false
+    t.string "name", null: false
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shop_id", "name"], name: "index_campaigns_on_shop_id_and_name", unique: true
+    t.index ["shop_id"], name: "index_campaigns_on_shop_id"
+  end
+
   create_table "shops", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.string "shopify_domain", null: false
     t.string "shopify_token", null: false
@@ -63,4 +73,28 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_01_000001) do
     t.index ["shopify_domain"], name: "index_shops_on_shopify_domain", unique: true
   end
 
+  create_table "store_credits", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "shop_id", null: false
+    t.string "email", null: false
+    t.decimal "amount", precision: 10, scale: 2, null: false
+    t.integer "expiry_hours", null: false
+    t.datetime "expires_at"
+    t.string "status", default: "pending", null: false
+    t.string "shopify_credit_id"
+    t.text "error_message"
+    t.datetime "processed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "campaign_id"
+    t.index ["campaign_id", "status"], name: "index_store_credits_on_campaign_id_and_status"
+    t.index ["campaign_id"], name: "index_store_credits_on_campaign_id"
+    t.index ["expires_at"], name: "index_store_credits_on_expires_at"
+    t.index ["shop_id", "email"], name: "index_store_credits_on_shop_id_and_email"
+    t.index ["shop_id"], name: "index_store_credits_on_shop_id"
+    t.index ["status"], name: "index_store_credits_on_status"
+  end
+
+  add_foreign_key "campaigns", "shops"
+  add_foreign_key "store_credits", "campaigns"
+  add_foreign_key "store_credits", "shops"
 end

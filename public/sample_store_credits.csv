@@ -1,0 +1,5 @@
+email,amount,expiry_hours
+customer1@example.com,25.00,72
+customer2@example.com,50.00,168
+customer3@example.com,100.00,336
+customer4@example.com,15.50,48

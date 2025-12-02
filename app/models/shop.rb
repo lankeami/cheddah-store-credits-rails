@@ -1,6 +1,9 @@
 class Shop < ActiveRecord::Base
   include ShopifyApp::ShopSessionStorageWithScopes
 
+  has_many :store_credits, dependent: :destroy
+  has_many :campaigns, dependent: :destroy
+
   serialize :enabled_presentment_currencies, type: Array, coder: JSON
 
   validates :shopify_domain, presence: true, uniqueness: true

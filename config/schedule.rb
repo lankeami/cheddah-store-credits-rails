@@ -16,6 +16,16 @@ every 1.day, at: '2:00 am' do
   rake 'shop:sync_all'
 end
 
+# Process store credits every hour
+every 1.hour do
+  rake 'store_credits:process_all'
+end
+
+# Cleanup expired store credits daily at 3:00 AM
+every 1.day, at: '3:00 am' do
+  rake 'store_credits:cleanup_expired'
+end
+
 # Example: Run every hour
 # every 1.hour do
 #   rake 'shop:sync_all'
