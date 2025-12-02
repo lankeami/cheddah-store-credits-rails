@@ -24,6 +24,9 @@ gem 'jbuilder'
 # Shopify
 gem 'shopify_app', '~> 22.0'
 
+# Cron job scheduling
+gem 'whenever', require: false
+
 # Performance
 gem 'bootsnap', require: false
 

@@ -1,0 +1,47 @@
+class AddShopDataToShops < ActiveRecord::Migration[7.1]
+  def change
+    add_column :shops, :name, :string
+    add_column :shops, :email, :string
+    add_column :shops, :domain, :string
+    add_column :shops, :phone, :string
+    add_column :shops, :address1, :string
+    add_column :shops, :address2, :string
+    add_column :shops, :city, :string
+    add_column :shops, :province, :string
+    add_column :shops, :province_code, :string
+    add_column :shops, :country, :string
+    add_column :shops, :country_code, :string
+    add_column :shops, :country_name, :string
+    add_column :shops, :zip, :string
+    add_column :shops, :currency, :string
+    add_column :shops, :timezone, :string
+    add_column :shops, :iana_timezone, :string
+    add_column :shops, :shop_owner, :string
+    add_column :shops, :money_format, :string
+    add_column :shops, :money_with_currency_format, :string
+    add_column :shops, :weight_unit, :string
+    add_column :shops, :plan_name, :string
+    add_column :shops, :plan_display_name, :string
+    add_column :shops, :primary_locale, :string
+    add_column :shops, :enabled_presentment_currencies, :text
+    add_column :shops, :tax_shipping, :boolean
+    add_column :shops, :taxes_included, :boolean
+    add_column :shops, :has_storefront, :boolean
+    add_column :shops, :has_discounts, :boolean
+    add_column :shops, :setup_required, :boolean
+    add_column :shops, :pre_launch_enabled, :boolean
+    add_column :shops, :customer_email, :string
+    add_column :shops, :myshopify_domain, :string
+    add_column :shops, :created_at_shopify, :datetime
+    add_column :shops, :updated_at_shopify, :datetime
+    add_column :shops, :checkout_api_supported, :boolean
+    add_column :shops, :multi_location_enabled, :boolean
+    add_column :shops, :force_ssl, :boolean
+    add_column :shops, :password_enabled, :boolean
+    add_column :shops, :eligible_for_payments, :boolean
+    add_column :shops, :requires_extra_payments_agreement, :boolean
+    add_column :shops, :eligible_for_card_reader_giveaway, :boolean
+    add_column :shops, :finances, :boolean
+    add_column :shops, :marketing_sms_consent_enabled_at_checkout, :boolean
+  end
+end
