@@ -2,6 +2,8 @@
 
 Get your shop sync running on a schedule in under 5 minutes.
 
+> **Using Docker?** See [Docker Scheduling Guide](DOCKER_SCHEDULING.md) for Docker-specific instructions.
+
 ## Step 1: Install Dependencies
 
 ```bash

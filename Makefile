@@ -65,6 +65,18 @@ gem:
 	docker-compose exec web bundle add $(GEM)
 	docker-compose restart web
 
+# Sync shop data from Shopify
+sync-shops:
+	docker-compose exec web bundle exec rake shop:sync_all
+
+# Sync specific shop (usage: make sync-shop SHOP=store.myshopify.com)
+sync-shop:
+	docker-compose exec web bundle exec rake shop:sync[$(SHOP)]
+
+# Preview whenever schedule
+preview-schedule:
+	docker-compose exec web bundle exec whenever
+
 # Help
 help:
 	@echo "Available commands:"
@@ -81,4 +93,7 @@ help:
 	@echo "  make console     - Open Rails console"
 	@echo "  make test        - Run tests"
 	@echo "  make gem GEM=name - Install a new gem"
+	@echo "  make sync-shops  - Sync all shop data from Shopify"
+	@echo "  make sync-shop SHOP=domain - Sync specific shop"
+	@echo "  make preview-schedule - Preview the cron schedule"
 	@echo "  make help        - Show this help message"

@@ -3,7 +3,9 @@
     "allow": [
       "Bash(rails new:*)",
       "Bash(docker-compose exec web bundle exec rails runner:*)",
-      "Bash(docker-compose exec:*)"
+      "Bash(docker-compose exec:*)",
+      "Bash(make preview-schedule:*)",
+      "Bash(make sync-shops:*)"
     ],
     "deny": [],
     "ask": []

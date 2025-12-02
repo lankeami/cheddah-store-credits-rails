@@ -4,8 +4,16 @@ This directory contains guides for scheduled jobs and background tasks.
 
 ## Available Guides
 
+### [Docker Scheduling Guide](DOCKER_SCHEDULING.md) 🐳
+**Using Docker?** Start here for Docker-specific scheduling instructions.
+
+- Host-level cron setup (recommended)
+- Installing cron in Docker containers
+- Cloud platform options
+- Testing and monitoring
+
 ### [Scheduling Quick Start](SCHEDULING_QUICK_START.md)
-**Start here!** Get your shop sync running on a schedule in under 5 minutes.
+Get your shop sync running on a schedule in under 5 minutes (for non-Docker setups).
 
 - Quick installation steps
 - Verify it's working
