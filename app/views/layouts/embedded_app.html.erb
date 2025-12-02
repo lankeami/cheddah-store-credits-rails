@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Cheddah Rails - Shopify App</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+
+    <script src="https://cdn.shopify.com/shopifycloud/app-bridge.js"></script>
+    <script type="module" src="https://cdn.shopify.com/shopifycloud/app-bridge/v4/app-bridge-react.standalone.js"></script>
+  </head>
+
+  <body>
+    <div id="app-container">
+      <%= yield %>
+    </div>
+  </body>
+</html>

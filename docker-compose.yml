@@ -1,0 +1,42 @@
+services:
+  db:
+    image: mysql:8.0
+    platform: linux/arm64/v8
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: cheddah_rails_development
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bin/rails db:create db:migrate && bin/rails server -b 0.0.0.0"
+    volumes:
+      - .:/app
+      - bundle_cache:/usr/local/bundle
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_HOST: db
+      DATABASE_USERNAME: root
+      DATABASE_PASSWORD: password
+      RAILS_ENV: development
+      SHOPIFY_API_KEY: ${SHOPIFY_API_KEY}
+      SHOPIFY_API_SECRET: ${SHOPIFY_API_SECRET}
+      SCOPES: ${SCOPES:-write_products,read_orders}
+      HOST: ${HOST:-https://your-app.ngrok.io}
+    stdin_open: true
+    tty: true
+
+volumes:
+  mysql_data:
+  bundle_cache:

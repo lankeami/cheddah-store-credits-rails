@@ -1,0 +1,24 @@
+<div style="padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+  <h1>Welcome to Cheddah Rails Shopify App!</h1>
+
+  <% if @shop %>
+    <div style="margin-top: 20px; padding: 15px; background-color: #f0f0f0; border-radius: 5px;">
+      <h2>Shop Information</h2>
+      <p><strong>Shop Domain:</strong> <%= @shop.shopify_domain %></p>
+      <p><strong>Products Count:</strong> <%= @products_count %></p>
+    </div>
+  <% else %>
+    <div style="margin-top: 20px; padding: 15px; background-color: #fff3cd; border-radius: 5px;">
+      <p>Please install this app in a Shopify store to see shop information.</p>
+    </div>
+  <% end %>
+
+  <div style="margin-top: 20px;">
+    <h2>Quick Links</h2>
+    <ul>
+      <li>Build your app features here</li>
+      <li>Access Shopify API through the Shop model</li>
+      <li>Customize this view in app/views/home/index.html.erb</li>
+    </ul>
+  </div>
+</div>

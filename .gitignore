@@ -1,0 +1,49 @@
+# Environment files
+.env
+.env.local
+
+# Dependencies
+/vendor/bundle
+/node_modules
+
+# Logs
+*.log
+/log/*
+!/log/.keep
+
+# Temporary files
+/tmp/*
+!/tmp/.keep
+/tmp/pids/*
+!/tmp/pids/.keep
+
+# Storage
+/storage/*
+!/storage/.keep
+
+# Database
+*.sqlite3
+*.sqlite3-*
+
+# Assets
+/public/assets
+/public/packs
+/public/packs-test
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test coverage
+/coverage/
+
+# Rails
+/config/master.key
+/config/credentials/*.key
