@@ -17,14 +17,14 @@ class StoreCreditsController < ApplicationController
 
   def upload
     unless params[:csv_file].present?
-      redirect_to store_credits_path, alert: 'Please select a CSV file to upload.'
+      redirect_to store_credits_path(shopify_params), alert: 'Please select a CSV file to upload.'
       return
     end
 
     csv_file = params[:csv_file]
 
     unless csv_file.content_type == 'text/csv' || csv_file.original_filename.end_with?('.csv')
-      redirect_to store_credits_path, alert: 'Please upload a valid CSV file.'
+      redirect_to store_credits_path(shopify_params), alert: 'Please upload a valid CSV file.'
       return
     end
 
@@ -55,24 +55,33 @@ class StoreCreditsController < ApplicationController
       Rails.logger.error("CSV Upload Error: #{e.message}\n#{e.backtrace.join("\n")}")
     end
 
-    redirect_to store_credits_path
+    redirect_to store_credits_path(shopify_params)
   end
 
   def destroy
     @store_credit = current_shop.store_credits.find(params[:id])
     @store_credit.destroy
-    redirect_to store_credits_path, notice: 'Store credit deleted successfully.'
+    redirect_to store_credits_path(shopify_params), notice: 'Store credit deleted successfully.'
   end
 
   def destroy_all
     count = current_shop.store_credits.destroy_all
-    redirect_to store_credits_path, notice: "Deleted #{count} store credits."
+    redirect_to store_credits_path(shopify_params), notice: "Deleted #{count} store credits."
   end
 
   private
 
   def current_shop
     @current_shop ||= Shop.find_by(shopify_domain: current_shopify_domain)
+  end
+
+  def shopify_params
+    {
+      shop: params[:shop],
+      host: params[:host],
+      embedded: params[:embedded],
+      id_token: params[:id_token]
+    }.compact
   end
 
   def process_csv(file, campaign = nil)

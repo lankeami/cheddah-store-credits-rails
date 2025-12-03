@@ -109,6 +109,10 @@ test-create-samples:
 test-credits-status:
 	docker-compose exec web bundle exec rake test:credits:detailed_status
 
+# Get the app install URL
+install-url:
+	@grep "^HOST=" .env | cut -d'=' -f2 | sed 's|$$|/login?shop=cheddah-dev.myshopify.com|'
+
 # Help
 help:
 	@echo "Available commands:"
@@ -136,4 +140,5 @@ help:
 	@echo "  make test-customer EMAIL=email - Check if customer exists"
 	@echo "  make test-create-samples - Create 5 sample test credits"
 	@echo "  make test-credits-status - Show detailed credit status"
+	@echo "  make install-url - Display the app install URL"
 	@echo "  make help        - Show this help message"

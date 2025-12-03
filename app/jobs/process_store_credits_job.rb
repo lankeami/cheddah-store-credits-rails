@@ -26,7 +26,8 @@ class ProcessStoreCreditsJob < ActiveJob::Base
       begin
         credit.mark_as_processing!
 
-        result = service.create_store_credit(
+        # Use create_customer_and_credit to handle both new and existing customers
+        result = service.create_customer_and_credit(
           email: credit.email,
           amount: credit.amount,
           expires_at: credit.expires_at,

@@ -18,7 +18,7 @@ class CampaignsController < ApplicationController
     @campaign = current_shop.campaigns.build(campaign_params)
 
     if @campaign.save
-      redirect_to campaigns_path, notice: "Campaign '#{@campaign.name}' created successfully."
+      redirect_to campaigns_path(shopify_params), notice: "Campaign '#{@campaign.name}' created successfully."
     else
       render :new
     end
@@ -29,7 +29,7 @@ class CampaignsController < ApplicationController
 
   def update
     if @campaign.update(campaign_params)
-      redirect_to campaign_path(@campaign), notice: "Campaign updated successfully."
+      redirect_to campaign_path(@campaign, shopify_params), notice: "Campaign updated successfully."
     else
       render :edit
     end
@@ -38,13 +38,22 @@ class CampaignsController < ApplicationController
   def destroy
     name = @campaign.name
     @campaign.destroy
-    redirect_to campaigns_path, notice: "Campaign '#{name}' deleted successfully."
+    redirect_to campaigns_path(shopify_params), notice: "Campaign '#{name}' deleted successfully."
   end
 
   private
 
   def current_shop
     @current_shop ||= Shop.find_by(shopify_domain: current_shopify_domain)
+  end
+
+  def shopify_params
+    {
+      shop: params[:shop],
+      host: params[:host],
+      embedded: params[:embedded],
+      id_token: params[:id_token]
+    }.compact
   end
 
   def set_campaign
