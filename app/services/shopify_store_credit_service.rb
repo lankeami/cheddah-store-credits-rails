@@ -11,33 +11,27 @@ class ShopifyStoreCreditService
 
   # Create a customer account credit using GraphQL
   def create_store_credit(email:, amount:, expires_at:, note: nil)
-    # First, find or get customer by email
-    customer = find_customer_by_email(email)
+    # Find the store credit account for this email
+    account_id = find_customer_id_for_store_credit(email)
 
-    unless customer
+    unless account_id
       return {
         success: false,
-        error: "Customer with email #{email} not found in Shopify"
+        error: "Store credit account not found for #{email}. Please ensure the customer exists and has a store credit account enabled."
       }
     end
 
-    customer_id = customer['id']
-
-    # Create the store credit using customerCreditGrant mutation
+    # Create the store credit using storeCreditAccountCredit mutation
     mutation = <<~GRAPHQL
-      mutation customerCreditGrant($input: CustomerCreditGrantInput!) {
-        customerCreditGrant(input: $input) {
-          customerCredit {
+      mutation storeCreditAccountCredit($id: ID!, $creditInput: StoreCreditAccountCreditInput!) {
+        storeCreditAccountCredit(id: $id, creditInput: $creditInput) {
+          storeCreditAccountTransaction {
             id
             amount {
-              value
+              amount
               currencyCode
             }
             expiresAt
-            customer {
-              id
-              email
-            }
           }
           userErrors {
             field
@@ -48,38 +42,50 @@ class ShopifyStoreCreditService
     GRAPHQL
 
     variables = {
-      input: {
-        customerId: customer_id,
-        amount: {
+      id: account_id,
+      creditInput: {
+        creditAmount: {
           amount: amount.to_s,
           currencyCode: shop.currency || 'USD'
         },
-        expiresAt: expires_at.iso8601,
-        note: note || "Store credit from bulk upload"
+        expiresAt: expires_at.iso8601
       }
     }
 
     response = execute_graphql(mutation, variables)
 
-    if response.dig('data', 'customerCreditGrant', 'userErrors')&.any?
-      errors = response['data']['customerCreditGrant']['userErrors']
+    Rails.logger.info("storeCreditAccountCredit response: #{response.inspect}")
+
+    # Check for GraphQL errors
+    if response['errors']
+      Rails.logger.error("GraphQL errors: #{response['errors'].inspect}")
+      return {
+        success: false,
+        error: response['errors'].map { |e| e['message'] }.join(', ')
+      }
+    end
+
+    if response.dig('data', 'storeCreditAccountCredit', 'userErrors')&.any?
+      errors = response['data']['storeCreditAccountCredit']['userErrors']
+      Rails.logger.error("User errors: #{errors.inspect}")
       return {
         success: false,
         error: errors.map { |e| "#{e['field']}: #{e['message']}" }.join(', ')
       }
     end
 
-    credit_data = response.dig('data', 'customerCreditGrant', 'customerCredit')
+    credit_data = response.dig('data', 'storeCreditAccountCredit', 'storeCreditAccountTransaction')
 
     if credit_data
       {
         success: true,
         credit_id: extract_gid(credit_data['id']),
-        amount: credit_data.dig('amount', 'value'),
+        amount: credit_data.dig('amount', 'amount'),
         currency: credit_data.dig('amount', 'currencyCode'),
         expires_at: credit_data['expiresAt']
       }
     else
+      Rails.logger.error("No credit data in response. Full response: #{response.inspect}")
       {
         success: false,
         error: 'Failed to create store credit - no response from Shopify'
@@ -93,16 +99,20 @@ class ShopifyStoreCreditService
     }
   end
 
-  # Find customer by email using GraphQL
-  def find_customer_by_email(email)
+  # Find store credit account ID for an email
+  # Uses storeCreditAccounts query which doesn't require protected customer data access
+  def find_customer_id_for_store_credit(email)
     query = <<~GRAPHQL
-      query getCustomerByEmail($email: String!) {
-        customers(first: 1, query: $email) {
+      query getStoreCreditAccounts($query: String!) {
+        storeCreditAccounts(first: 1, query: $query) {
           edges {
             node {
               id
-              email
-              displayName
+              owner {
+                ... on Customer {
+                  email
+                }
+              }
             }
           }
         }
@@ -110,10 +120,48 @@ class ShopifyStoreCreditService
     GRAPHQL
 
     variables = {
-      email: "email:#{email}"
+      query: "email:#{email}"
     }
 
+    Rails.logger.info("Searching for store credit account with query: #{variables[:query]}")
     response = execute_graphql(query, variables)
+    Rails.logger.info("Store credit account search response: #{response.inspect}")
+
+    accounts = response.dig('data', 'storeCreditAccounts', 'edges')
+
+    return nil if accounts.nil? || accounts.empty?
+
+    accounts.first.dig('node', 'id')
+  end
+
+  # Find customer by email using GraphQL
+  def find_customer_by_email(email)
+    query = <<~GRAPHQL
+      query getCustomerByEmail($query: String!) {
+        customers(first: 1, query: $query) {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      }
+    GRAPHQL
+
+    variables = {
+      query: "email:#{email}"
+    }
+
+    Rails.logger.info("Searching for customer with query: #{variables[:query]}")
+    response = execute_graphql(query, variables)
+    Rails.logger.info("Customer search response: #{response.inspect}")
+
+    # Check for errors
+    if response['errors']
+      Rails.logger.error("GraphQL errors: #{response['errors'].inspect}")
+      return nil
+    end
+
     customers = response.dig('data', 'customers', 'edges')
 
     return nil if customers.nil? || customers.empty?

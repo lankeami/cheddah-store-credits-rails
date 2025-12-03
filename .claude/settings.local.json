@@ -8,7 +8,10 @@
       "Bash(make sync-shops:*)",
       "Bash(make db-migrate:*)",
       "Bash(make:*)",
-      "Bash(docker-compose logs:*)"
+      "Bash(docker-compose logs:*)",
+      "Bash(docker-compose restart:*)",
+      "Bash(bin/rails db:migrate:*)",
+      "Bash(bundle install:*)"
     ],
     "deny": [],
     "ask": []

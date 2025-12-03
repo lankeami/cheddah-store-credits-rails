@@ -3,7 +3,12 @@
     <h1 class="text-3xl font-bold mb-6">Edit Campaign</h1>
 
     <div class="bg-white rounded-lg shadow p-6">
-      <%= form_with model: @campaign, local: true, class: "space-y-4" do |f| %>
+      <%= form_with model: @campaign, local: true, data: { turbo: false }, html: { class: "space-y-4" } do |f| %>
+        <%= hidden_field_tag :shop, params[:shop] if params[:shop].present? %>
+        <%= hidden_field_tag :host, params[:host] if params[:host].present? %>
+        <%= hidden_field_tag :embedded, params[:embedded] if params[:embedded].present? %>
+        <%= hidden_field_tag :id_token, params[:id_token] if params[:id_token].present? %>
+
         <% if @campaign.errors.any? %>
           <div class="bg-red-50 border border-red-200 rounded p-4">
             <h3 class="text-red-800 font-semibold mb-2"><%= pluralize(@campaign.errors.count, "error") %> prevented this campaign from being saved:</h3>

@@ -45,9 +45,11 @@
               <td class="px-6 py-4 whitespace-nowrap text-sm">
                 <%= link_to "View", campaign_path(campaign), class: "text-blue-600 hover:text-blue-800 mr-3" %>
                 <%= link_to "Edit", edit_campaign_path(campaign), class: "text-green-600 hover:text-green-800 mr-3" %>
-                <%= link_to "Delete", campaign_path(campaign),
+                <%= button_to "Delete", campaign_path(campaign),
                     method: :delete,
-                    data: { confirm: "Are you sure? This will not delete the credits, just remove the campaign association." },
+                    params: { shop: params[:shop], host: params[:host], embedded: params[:embedded], id_token: params[:id_token] },
+                    data: { confirm: "Are you sure? This will not delete the credits, just remove the campaign association.", turbo: false },
+                    style: "background: none; border: none; padding: 0; cursor: pointer;",
                     class: "text-red-600 hover:text-red-800" %>
               </td>
             </tr>

@@ -43,7 +43,10 @@ class StoreCreditsController < ApplicationController
       else
         message = "Successfully uploaded #{results[:success_count]} store credits"
         message += " to campaign '#{campaign.name}'" if campaign
-        flash[:notice] = message + "."
+        flash[:notice] = message + ". Processing will begin shortly."
+
+        # Enqueue job to process the credits in Shopify
+        ProcessStoreCreditsJob.perform_later(shop_domain: current_shop.shopify_domain)
       end
     rescue CSV::MalformedCSVError => e
       flash[:alert] = "Invalid CSV format: #{e.message}"

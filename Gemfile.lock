@@ -178,6 +178,8 @@ GEM
     nio4r (2.7.5)
     nokogiri (1.18.10-aarch64-linux-gnu)
       racc (~> 1.4)
+    nokogiri (1.18.10-arm64-darwin)
+      racc (~> 1.4)
     oj (3.16.12)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
@@ -308,6 +310,7 @@ GEM
 
 PLATFORMS
   aarch64-linux
+  arm64-darwin-24
 
 DEPENDENCIES
   bootsnap
@@ -328,7 +331,7 @@ DEPENDENCIES
   whenever
 
 RUBY VERSION
-   ruby 3.2.2p53
+   ruby 3.2.4p170
 
 BUNDLED WITH
    2.4.10
