@@ -11,7 +11,8 @@
       "Bash(docker-compose logs:*)",
       "Bash(docker-compose restart:*)",
       "Bash(bin/rails db:migrate:*)",
-      "Bash(bundle install:*)"
+      "Bash(bundle install:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []

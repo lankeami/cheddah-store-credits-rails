@@ -1,0 +1,265 @@
+{
+	"info": {
+		"_postman_id": "shopify-store-credits-collection",
+		"name": "Shopify Store Credits API",
+		"description": "Collection for testing Shopify GraphQL API - creating customers and managing store credits",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{access_token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "X-Shopify-Access-Token",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "1. Create Customer",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Shopify-Access-Token",
+						"value": "{{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation customerCreate($input: CustomerInput!) {\n  customerCreate(input: $input) {\n    customer {\n      id\n      email\n      firstName\n      lastName\n      createdAt\n    }\n    userErrors {\n      field\n      message\n    }\n  }\n}",
+						"variables": "{\n  \"input\": {\n    \"email\": \"newcustomer@example.com\",\n    \"firstName\": \"New\",\n    \"lastName\": \"Customer\"\n  }\n}"
+					}
+				},
+				"url": {
+					"raw": "https://{{shop_domain}}/admin/api/2024-10/graphql.json",
+					"protocol": "https",
+					"host": [
+						"{{shop_domain}}"
+					],
+					"path": [
+						"admin",
+						"api",
+						"2024-10",
+						"graphql.json"
+					]
+				},
+				"description": "Creates a new customer account in Shopify. Returns the customer ID which you'll need for adding store credits."
+			},
+			"response": []
+		},
+		{
+			"name": "2. Get Customer by Email",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Shopify-Access-Token",
+						"value": "{{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query getCustomerByEmail($query: String!) {\n  customers(first: 1, query: $query) {\n    edges {\n      node {\n        id\n        email\n        firstName\n        lastName\n        storeCreditAccounts(first: 5) {\n          edges {\n            node {\n              id\n              balance {\n                amount\n                currencyCode\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}",
+						"variables": "{\n  \"query\": \"email:newcustomer@example.com\"\n}"
+					}
+				},
+				"url": {
+					"raw": "https://{{shop_domain}}/admin/api/2024-10/graphql.json",
+					"protocol": "https",
+					"host": [
+						"{{shop_domain}}"
+					],
+					"path": [
+						"admin",
+						"api",
+						"2024-10",
+						"graphql.json"
+					]
+				},
+				"description": "Searches for a customer by email and returns their store credit accounts if any exist."
+			},
+			"response": []
+		},
+		{
+			"name": "3. Add Store Credit (with Account ID)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Shopify-Access-Token",
+						"value": "{{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "mutation storeCreditAccountCredit($id: ID!, $creditInput: StoreCreditAccountCreditInput!) {\n  storeCreditAccountCredit(id: $id, creditInput: $creditInput) {\n    storeCreditAccountTransaction {\n      id\n      amount {\n        amount\n        currencyCode\n      }\n      expiresAt\n      createdAt\n    }\n    userErrors {\n      field\n      message\n    }\n  }\n}",
+						"variables": "{\n  \"id\": \"gid://shopify/StoreCreditAccount/YOUR_ACCOUNT_ID_HERE\",\n  \"creditInput\": {\n    \"creditAmount\": {\n      \"amount\": \"25.00\",\n      \"currencyCode\": \"USD\"\n    },\n    \"expiresAt\": \"2025-12-31T23:59:59Z\"\n  }\n}"
+					}
+				},
+				"url": {
+					"raw": "https://{{shop_domain}}/admin/api/2024-10/graphql.json",
+					"protocol": "https",
+					"host": [
+						"{{shop_domain}}"
+					],
+					"path": [
+						"admin",
+						"api",
+						"2024-10",
+						"graphql.json"
+					]
+				},
+				"description": "Adds store credit to an existing store credit account. NOTE: The account must exist first - create it manually in Shopify Admin or the mutation may fail."
+			},
+			"response": []
+		},
+		{
+			"name": "4. Get Store Credit Account Details",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Shopify-Access-Token",
+						"value": "{{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query getStoreCreditAccount($id: ID!) {\n  node(id: $id) {\n    ... on StoreCreditAccount {\n      id\n      balance {\n        amount\n        currencyCode\n      }\n      owner {\n        ... on Customer {\n          id\n          email\n          firstName\n          lastName\n        }\n      }\n    }\n  }\n}",
+						"variables": "{\n  \"id\": \"gid://shopify/StoreCreditAccount/YOUR_ACCOUNT_ID_HERE\"\n}"
+					}
+				},
+				"url": {
+					"raw": "https://{{shop_domain}}/admin/api/2024-10/graphql.json",
+					"protocol": "https",
+					"host": [
+						"{{shop_domain}}"
+					],
+					"path": [
+						"admin",
+						"api",
+						"2024-10",
+						"graphql.json"
+					]
+				},
+				"description": "Retrieves details about a specific store credit account including balance and owner information."
+			},
+			"response": []
+		},
+		{
+			"name": "5. List All Customers with Credits",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Shopify-Access-Token",
+						"value": "{{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "query getAllCustomersWithCredits {\n  customers(first: 10) {\n    edges {\n      node {\n        id\n        email\n        firstName\n        lastName\n        storeCreditAccounts(first: 1) {\n          edges {\n            node {\n              id\n              balance {\n                amount\n                currencyCode\n              }\n            }\n          }\n        }\n      }\n    }\n    pageInfo {\n      hasNextPage\n      endCursor\n    }\n  }\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "https://{{shop_domain}}/admin/api/2024-10/graphql.json",
+					"protocol": "https",
+					"host": [
+						"{{shop_domain}}"
+					],
+					"path": [
+						"admin",
+						"api",
+						"2024-10",
+						"graphql.json"
+					]
+				},
+				"description": "Lists the first 10 customers and their store credit accounts (if any). Use pagination for more results."
+			},
+			"response": []
+		},
+		{
+			"name": "6. GraphQL Schema Introspection (Store Credits)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "X-Shopify-Access-Token",
+						"value": "{{access_token}}"
+					}
+				],
+				"body": {
+					"mode": "graphql",
+					"graphql": {
+						"query": "{\n  __type(name: \"StoreCreditAccountCreditInput\") {\n    name\n    inputFields {\n      name\n      description\n      type {\n        name\n        kind\n        ofType {\n          name\n          kind\n        }\n      }\n    }\n  }\n}",
+						"variables": ""
+					}
+				},
+				"url": {
+					"raw": "https://{{shop_domain}}/admin/api/2024-10/graphql.json",
+					"protocol": "https",
+					"host": [
+						"{{shop_domain}}"
+					],
+					"path": [
+						"admin",
+						"api",
+						"2024-10",
+						"graphql.json"
+					]
+				},
+				"description": "Introspects the GraphQL schema to see available fields for StoreCreditAccountCreditInput. Useful for discovering API capabilities."
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "shop_domain",
+			"value": "cheddah-dev.myshopify.com",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "YOUR_ACCESS_TOKEN_HERE",
+			"type": "string"
+		}
+	]
+}
