@@ -1,3 +1,11 @@
+<% content_for :breadcrumbs do %>
+  <%= breadcrumb 'Home', root_path(shopify_path_params) %>
+  <%= breadcrumb_separator %>
+  <%= breadcrumb 'Campaigns', campaigns_path(shopify_path_params) %>
+  <%= breadcrumb_separator %>
+  <%= breadcrumb @campaign.name %>
+<% end %>
+
 <div class="container mx-auto px-4 py-8">
   <div class="flex justify-between items-center mb-6">
     <div>
@@ -5,8 +13,8 @@
       <p class="text-gray-600 mt-2">Campaign ID: #<%= @campaign.id %></p>
     </div>
     <div class="space-x-2">
-      <%= link_to "Edit", edit_campaign_path(@campaign), class: "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded" %>
-      <%= link_to "Back", campaigns_path, class: "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded" %>
+      <%= link_to "Edit", edit_campaign_path(@campaign, shopify_path_params), class: "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded" %>
+      <%= link_to "Back", campaigns_path(shopify_path_params), class: "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded" %>
     </div>
   </div>
 

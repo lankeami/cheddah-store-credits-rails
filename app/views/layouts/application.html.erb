@@ -1,16 +1,95 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Cheddah Rails</title>
+    <title>Cheddah - Store Credits Manager</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #f6f6f7;
+        min-height: 100vh;
+      }
+    </style>
   </head>
 
   <body>
-    <%= yield %>
+    <!-- Header with Logo and Navigation -->
+    <header style="background: white; border-bottom: 1px solid #e1e3e5; position: sticky; top: 0; z-index: 100;">
+      <div style="max-width: 1400px; margin: 0 auto; padding: 0 20px;">
+        <!-- Top bar with logo -->
+        <div style="display: flex; align-items: center; justify-content: space-between; height: 56px;">
+          <div style="display: flex; align-items: center; gap: 32px;">
+            <!-- Logo -->
+            <%= link_to root_path(shop: params[:shop], host: params[:host], embedded: params[:embedded], id_token: params[:id_token]),
+                style: 'text-decoration: none; display: flex; align-items: center; gap: 12px;' do %>
+              <div style="background: linear-gradient(135deg, #5C6AC4 0%, #4959BD 100%); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; font-size: 18px;">
+                ₵
+              </div>
+              <span style="font-size: 20px; font-weight: 600; color: #202223;">Cheddah</span>
+            <% end %>
+
+            <!-- Main Navigation -->
+            <nav style="display: flex; gap: 4px;">
+              <%= link_to 'Campaigns',
+                  campaigns_path(shop: params[:shop], host: params[:host], embedded: params[:embedded], id_token: params[:id_token]),
+                  style: "padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.2s; #{controller_name == 'campaigns' ? 'background: #f1f2f4; color: #202223;' : 'color: #6d7175;'}",
+                  onmouseover: "if(!this.style.backgroundColor || this.style.backgroundColor === 'rgba(0, 0, 0, 0)') this.style.backgroundColor='#f6f6f7'",
+                  onmouseout: "if(this.style.backgroundColor === 'rgb(246, 246, 247)') this.style.backgroundColor=''" %>
+
+              <%= link_to 'Store Credits',
+                  store_credits_path(shop: params[:shop], host: params[:host], embedded: params[:embedded], id_token: params[:id_token]),
+                  style: "padding: 8px 12px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500; transition: background 0.2s; #{current_page?(store_credits_path) ? 'background: #f1f2f4; color: #202223;' : 'color: #6d7175;'}",
+                  onmouseover: "if(!this.style.backgroundColor || this.style.backgroundColor === 'rgba(0, 0, 0, 0)') this.style.backgroundColor='#f6f6f7'",
+                  onmouseout: "if(this.style.backgroundColor === 'rgb(246, 246, 247)') this.style.backgroundColor=''" %>
+            </nav>
+          </div>
+
+          <!-- Right side - could add user menu, settings, etc -->
+          <div style="color: #6d7175; font-size: 13px;">
+            <%= current_shopify_domain if defined?(current_shopify_domain) %>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Breadcrumbs -->
+    <% if content_for?(:breadcrumbs) %>
+      <div style="background: white; border-bottom: 1px solid #e1e3e5;">
+        <div style="max-width: 1400px; margin: 0 auto; padding: 12px 20px;">
+          <nav style="display: flex; align-items: center; gap: 8px; font-size: 13px;">
+            <%= yield :breadcrumbs %>
+          </nav>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Flash Messages -->
+    <% if flash[:notice] || flash[:alert] || flash[:error] %>
+      <div style="max-width: 1400px; margin: 0 auto; padding: 16px 20px 0;">
+        <% if flash[:notice] %>
+          <div style="padding: 12px 16px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 6px; margin-bottom: 16px; color: #155724; font-size: 14px;">
+            <%= flash[:notice] %>
+          </div>
+        <% end %>
+
+        <% if flash[:alert] || flash[:error] %>
+          <div style="padding: 12px 16px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; margin-bottom: 16px; color: #721c24; font-size: 14px;">
+            <%= flash[:alert] || flash[:error] %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- Main Content -->
+    <main style="max-width: 1400px; margin: 0 auto; padding: 20px;">
+      <%= yield %>
+    </main>
   </body>
 </html>

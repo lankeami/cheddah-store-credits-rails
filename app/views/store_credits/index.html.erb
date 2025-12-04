@@ -1,25 +1,22 @@
-<div style="padding: 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 1200px;">
+<% content_for :breadcrumbs do %>
+  <%= breadcrumb 'Home', root_path(shopify_path_params) %>
+  <%= breadcrumb_separator %>
+  <%= breadcrumb 'Store Credits' %>
+<% end %>
+
+<div>
   <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 20px;">Store Credits Manager</h1>
 
-  <% if flash[:notice] %>
-    <div style="padding: 12px 16px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 20px; color: #155724;">
-      <%= flash[:notice] %>
-    </div>
-  <% end %>
-
-  <% if flash[:alert] %>
-    <div style="padding: 12px 16px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 20px; color: #721c24;">
-      <%= flash[:alert] %>
-      <% if flash[:errors] %>
-        <details style="margin-top: 10px;">
-          <summary style="cursor: pointer; font-weight: 600;">View Errors (<%= flash[:errors].count %>)</summary>
-          <ul style="margin-top: 10px; padding-left: 20px;">
-            <% flash[:errors].each do |error| %>
-              <li><%= error %></li>
-            <% end %>
-          </ul>
-        </details>
-      <% end %>
+  <% if flash[:errors] %>
+    <div style="padding: 12px 16px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; margin-bottom: 20px; color: #721c24;">
+      <details style="margin-top: 10px;">
+        <summary style="cursor: pointer; font-weight: 600;">View Errors (<%= flash[:errors].count %>)</summary>
+        <ul style="margin-top: 10px; padding-left: 20px;">
+          <% flash[:errors].each do |error| %>
+            <li><%= error %></li>
+          <% end %>
+        </ul>
+      </details>
     </div>
   <% end %>
 
