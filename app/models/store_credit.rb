@@ -31,10 +31,7 @@ class StoreCredit < ActiveRecord::Base
     }
 
     # Set shopify_customer relationship if provided
-    if shopify_customer
-      attrs[:shopify_customer] = shopify_customer
-      attrs[:shopify_customer_id_legacy] = shopify_customer.shopify_customer_id
-    end
+    attrs[:shopify_customer] = shopify_customer if shopify_customer
 
     update!(attrs)
   end
@@ -47,10 +44,7 @@ class StoreCredit < ActiveRecord::Base
     }
 
     # Set shopify_customer relationship if provided
-    if shopify_customer
-      attrs[:shopify_customer] = shopify_customer
-      attrs[:shopify_customer_id_legacy] = shopify_customer.shopify_customer_id
-    end
+    attrs[:shopify_customer] = shopify_customer if shopify_customer
 
     update!(attrs)
   end
@@ -61,12 +55,8 @@ class StoreCredit < ActiveRecord::Base
 
   # Generate Shopify admin customer URL
   def shopify_customer_url
-    # Prefer the denormalized relationship
     return shopify_customer.shopify_customer_url if shopify_customer
-
-    # Fallback to legacy shopify_customer_id_legacy column
-    return nil unless shopify_customer_id_legacy && shop
-    "https://#{shop.shopify_domain}/admin/customers/#{shopify_customer_id_legacy}"
+    nil
   end
 
   def process_now!

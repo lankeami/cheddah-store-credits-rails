@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_05_041528) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_05_175610) do
   create_table "campaigns", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "shop_id", null: false
     t.string "name", null: false
@@ -97,7 +97,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_05_041528) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "campaign_id"
-    t.string "shopify_customer_id_legacy"
     t.bigint "shopify_customer_id"
     t.index ["campaign_id", "status"], name: "index_store_credits_on_campaign_id_and_status"
     t.index ["campaign_id"], name: "index_store_credits_on_campaign_id"

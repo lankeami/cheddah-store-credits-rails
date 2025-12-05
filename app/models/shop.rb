@@ -12,6 +12,44 @@ class Shop < ActiveRecord::Base
     ShopifyApp.configuration.api_version
   end
 
+  def register_webhooks
+    with_shopify_session do |session|
+      webhooks_to_register = [
+        { topic: 'customers/data_request', path: '/webhooks/customers_data_request' },
+        { topic: 'customers/redact', path: '/webhooks/customers_redact' },
+        { topic: 'shop/redact', path: '/webhooks/shop_redact' },
+        { topic: 'app/uninstalled', path: '/webhooks/app_uninstalled' }
+      ]
+
+      host = ENV.fetch('HOST', 'https://localhost:3000')
+
+      webhooks_to_register.each do |webhook_config|
+        # Check if webhook already exists
+        existing_webhooks = ShopifyAPI::Webhook.all(session: session, topic: webhook_config[:topic])
+
+        if existing_webhooks.any?
+          Rails.logger.info("Webhook already exists for #{webhook_config[:topic]}")
+          next
+        end
+
+        # Register the webhook
+        webhook = ShopifyAPI::Webhook.new(session: session)
+        webhook.topic = webhook_config[:topic]
+        webhook.address = "#{host}#{webhook_config[:path]}"
+        webhook.format = 'json'
+
+        if webhook.save
+          Rails.logger.info("Successfully registered webhook: #{webhook_config[:topic]}")
+        else
+          Rails.logger.error("Failed to register webhook: #{webhook_config[:topic]} - #{webhook.errors.full_messages.join(', ')}")
+        end
+      end
+    end
+  rescue => e
+    Rails.logger.error("Failed to register webhooks for #{shopify_domain}: #{e.message}")
+    Rails.logger.error(e.backtrace.join("\n"))
+  end
+
   def sync_shop_data
     with_shopify_session do |session|
       shop_data = ShopifyAPI::Shop.current(session: session)

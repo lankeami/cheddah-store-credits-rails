@@ -35,8 +35,7 @@ namespace :store_credits do
 
             # Link the credit to the customer
             credit.update_columns(
-              shopify_customer_id: shopify_customer.id,
-              shopify_customer_id_legacy: customer_id
+              shopify_customer_id: shopify_customer.id
             )
 
             updated_count += 1

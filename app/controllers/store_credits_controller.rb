@@ -92,9 +92,9 @@ class StoreCreditsController < ApplicationController
         email = row[:email].to_s.strip
 
         # Check for existing completed credit for this email and campaign
-        existing_completed = current_shop.store_credits
-                                        .where(email: email, campaign_id: campaign&.id, status: 'completed')
-                                        .exists?
+        existing_completed_credit = current_shop.store_credits
+                                               .where(email: email, campaign_id: campaign&.id, status: 'completed')
+                                               .first
 
         # Create store credit
         store_credit = current_shop.store_credits.create!(
@@ -104,18 +104,26 @@ class StoreCreditsController < ApplicationController
           campaign: campaign
         )
 
-        # If duplicate, mark as failed immediately
-        if existing_completed
+        # If duplicate, mark as failed immediately and link to shopify_customer
+        if existing_completed_credit
           error_msg = if campaign
             "Customer has already received store credit from the '#{campaign.name}' campaign"
           else
             "Customer has already received store credit"
           end
-          store_credit.update!(
+
+          # Link to the same shopify_customer as the existing completed credit
+          update_attrs = {
             status: 'failed',
             error_message: error_msg,
             processed_at: Time.current
-          )
+          }
+
+          if existing_completed_credit.shopify_customer
+            update_attrs[:shopify_customer] = existing_completed_credit.shopify_customer
+          end
+
+          store_credit.update!(update_attrs)
           errors << "Line #{line_number}: #{error_msg}"
         else
           success_count += 1

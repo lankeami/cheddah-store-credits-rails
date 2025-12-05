@@ -1,4 +1,4 @@
-.PHONY: local build up down logs clean rebuild db-reset console help
+.PHONY: local build up down logs clean rebuild db-reset db-migrate db-console console test-webhooks help
 
 # Tear down, rebuild from scratch, and run the app
 local:
@@ -51,6 +51,10 @@ db-reset:
 # Run migrations
 db-migrate:
 	docker-compose exec web bundle exec rails db:migrate
+
+# Connect to database with MySQL client for raw SQL queries
+db-console:
+	docker-compose exec db mysql -uroot -ppassword cheddah_rails_development
 
 # Open Rails console
 console:
@@ -113,6 +117,10 @@ test-credits-status:
 install-url:
 	@grep "^HOST=" .env | cut -d'=' -f2 | sed 's|$$|/login?shop=cheddah-dev.myshopify.com|'
 
+# Test webhooks locally
+test-webhooks:
+	./test_webhooks.sh
+
 # Help
 help:
 	@echo "Available commands:"
@@ -126,6 +134,7 @@ help:
 	@echo "  make rebuild     - Rebuild without cache"
 	@echo "  make db-reset    - Drop, create, and migrate database"
 	@echo "  make db-migrate  - Run database migrations"
+	@echo "  make db-console  - Connect to MySQL database for raw SQL queries"
 	@echo "  make console     - Open Rails console"
 	@echo "  make test        - Run tests"
 	@echo "  make gem GEM=name - Install a new gem"
@@ -140,5 +149,6 @@ help:
 	@echo "  make test-customer EMAIL=email - Check if customer exists"
 	@echo "  make test-create-samples - Create 5 sample test credits"
 	@echo "  make test-credits-status - Show detailed credit status"
+	@echo "  make test-webhooks - Test all webhook endpoints locally"
 	@echo "  make install-url - Display the app install URL"
 	@echo "  make help        - Show this help message"
