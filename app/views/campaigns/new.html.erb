@@ -6,51 +6,59 @@
   <%= breadcrumb 'New Campaign' %>
 <% end %>
 
-<div class="container mx-auto px-4 py-8">
-  <div class="max-w-2xl mx-auto">
-    <h1 class="text-3xl font-bold mb-6">Create New Campaign</h1>
+<div>
+  <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 20px;">Create New Campaign</h1>
 
-    <div class="bg-white rounded-lg shadow p-6">
-      <%= form_with model: @campaign, local: true, data: { turbo: false }, html: { class: "space-y-4" } do |f| %>
-        <%= hidden_field_tag :shop, params[:shop] if params[:shop].present? %>
-        <%= hidden_field_tag :host, params[:host] if params[:host].present? %>
-        <%= hidden_field_tag :embedded, params[:embedded] if params[:embedded].present? %>
-        <%= hidden_field_tag :id_token, params[:id_token] if params[:id_token].present? %>
+  <div style="background: white; border: 1px solid #ddd; border-radius: 8px; padding: 24px; max-width: 800px;">
+    <%= form_with model: @campaign, local: true, data: { turbo: false } do |form| %>
+      <%= hidden_field_tag :shop, params[:shop] if params[:shop].present? %>
+      <%= hidden_field_tag :host, params[:host] if params[:host].present? %>
+      <%= hidden_field_tag :embedded, params[:embedded] if params[:embedded].present? %>
+      <%= hidden_field_tag :id_token, params[:id_token] if params[:id_token].present? %>
 
-        <% if @campaign.errors.any? %>
-          <div class="bg-red-50 border border-red-200 rounded p-4">
-            <h3 class="text-red-800 font-semibold mb-2"><%= pluralize(@campaign.errors.count, "error") %> prevented this campaign from being saved:</h3>
-            <ul class="list-disc list-inside text-red-700">
-              <% @campaign.errors.full_messages.each do |message| %>
-                <li><%= message %></li>
-              <% end %>
-            </ul>
-          </div>
-        <% end %>
-
-        <div>
-          <%= f.label :name, "Campaign Name", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= f.text_field :name,
-              class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-              placeholder: "e.g., Black Friday 2024, Welcome Credits, etc.",
-              required: true %>
-          <p class="text-sm text-gray-500 mt-1">Give your campaign a unique, descriptive name</p>
-        </div>
-
-        <div>
-          <%= f.label :description, "Description (Optional)", class: "block text-sm font-medium text-gray-700 mb-1" %>
-          <%= f.text_area :description,
-              class: "w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500",
-              placeholder: "Describe the purpose of this campaign...",
-              rows: 4 %>
-          <p class="text-sm text-gray-500 mt-1">Provide additional context about this campaign for your records</p>
-        </div>
-
-        <div class="flex justify-end space-x-3 pt-4">
-          <%= link_to "Cancel", campaigns_path(shopify_path_params), class: "px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded" %>
-          <%= f.submit "Create Campaign", class: "px-4 py-2 text-white bg-blue-500 hover:bg-blue-600 rounded cursor-pointer" %>
+      <% if @campaign.errors.any? %>
+        <div style="padding: 12px 16px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px; margin-bottom: 20px; color: #721c24;">
+          <strong style="font-weight: 600;"><%= pluralize(@campaign.errors.count, "error") %> prevented this campaign from being saved:</strong>
+          <ul style="margin: 8px 0 0 20px; line-height: 1.6;">
+            <% @campaign.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
         </div>
       <% end %>
-    </div>
+
+      <div style="margin-bottom: 20px;">
+        <%= form.label :name, "Campaign Name", style: 'display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;' %>
+        <%= form.text_field :name,
+            required: true,
+            placeholder: "e.g., Black Friday 2024, Welcome Credits, etc.",
+            style: 'padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px;' %>
+        <p style="font-size: 13px; color: #666; margin-top: 4px;">
+          Give your campaign a unique, descriptive name
+        </p>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <%= form.label :description, "Description (Optional)", style: 'display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px;' %>
+        <%= form.text_area :description,
+            rows: 4,
+            placeholder: "Describe the purpose of this campaign...",
+            style: 'padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 100%; font-size: 14px; resize: vertical;' %>
+        <p style="font-size: 13px; color: #666; margin-top: 4px;">
+          Provide additional context about this campaign for your records
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+        <%= link_to "Cancel", campaigns_path(shopify_path_params),
+            style: 'padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 14px; display: inline-block;',
+            onmouseover: "this.style.backgroundColor='#5a6268'",
+            onmouseout: "this.style.backgroundColor='#6c757d'" %>
+        <%= form.submit 'Create Campaign',
+            style: 'padding: 10px 24px; background: #007bff; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 14px;',
+            onmouseover: "this.style.backgroundColor='#0056b3'",
+            onmouseout: "this.style.backgroundColor='#007bff'" %>
+      </div>
+    <% end %>
   </div>
 </div>

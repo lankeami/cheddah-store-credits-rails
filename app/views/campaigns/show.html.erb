@@ -6,114 +6,142 @@
   <%= breadcrumb @campaign.name %>
 <% end %>
 
-<div class="container mx-auto px-4 py-8">
-  <div class="flex justify-between items-center mb-6">
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
     <div>
-      <h1 class="text-3xl font-bold"><%= @campaign.name %></h1>
-      <p class="text-gray-600 mt-2">Campaign ID: #<%= @campaign.id %></p>
+      <h1 style="font-size: 24px; font-weight: 600; margin: 0;"><%= @campaign.name %></h1>
+      <p style="color: #666; margin-top: 4px; font-size: 14px;">Campaign ID: #<%= @campaign.id %></p>
     </div>
-    <div class="space-x-2">
-      <%= link_to "Edit", edit_campaign_path(@campaign, shopify_path_params), class: "bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded" %>
-      <%= link_to "Back", campaigns_path(shopify_path_params), class: "bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded" %>
+    <div style="display: flex; gap: 12px;">
+      <%= link_to "Edit", edit_campaign_path(@campaign, shopify_path_params),
+          style: 'padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 14px; display: inline-block;',
+          onmouseover: "this.style.backgroundColor='#0056b3'",
+          onmouseout: "this.style.backgroundColor='#007bff'" %>
+      <%= link_to "Back", campaigns_path(shopify_path_params),
+          style: 'padding: 10px 20px; background: #6c757d; color: white; border: none; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 14px; display: inline-block;',
+          onmouseover: "this.style.backgroundColor='#5a6268'",
+          onmouseout: "this.style.backgroundColor='#6c757d'" %>
     </div>
   </div>
 
   <% if @campaign.description.present? %>
-    <div class="bg-white rounded-lg shadow p-6 mb-6">
-      <h2 class="text-lg font-semibold mb-2">Description</h2>
-      <p class="text-gray-700"><%= @campaign.description %></p>
+    <div style="background: white; border: 1px solid #ddd; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+      <h2 style="font-size: 16px; font-weight: 600; margin-bottom: 12px;">Description</h2>
+      <p style="color: #333; line-height: 1.6;"><%= @campaign.description %></p>
     </div>
   <% end %>
 
-  <!-- Statistics -->
-  <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="text-sm text-gray-600 mb-1">Total Credits</div>
-      <div class="text-3xl font-bold text-gray-900"><%= @stats[:total_credits] %></div>
+  <!-- Stats Cards -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+    <div style="padding: 16px; background: white; border: 1px solid #ddd; border-radius: 8px;">
+      <div style="font-size: 14px; color: #666; margin-bottom: 4px;">Total Credits</div>
+      <div style="font-size: 28px; font-weight: 600;"><%= @stats[:total_credits] %></div>
     </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="text-sm text-gray-600 mb-1">Total Amount</div>
-      <div class="text-3xl font-bold text-gray-900">$<%= number_with_precision(@stats[:total_amount], precision: 2) %></div>
+    <div style="padding: 16px; background: white; border: 1px solid #ddd; border-radius: 8px;">
+      <div style="font-size: 14px; color: #666; margin-bottom: 4px;">Total Amount</div>
+      <div style="font-size: 28px; font-weight: 600;">$<%= number_with_precision(@stats[:total_amount], precision: 2) %></div>
     </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="text-sm text-gray-600 mb-1">Pending</div>
-      <div class="text-3xl font-bold text-yellow-600"><%= @stats[:pending] %></div>
+    <div style="padding: 16px; background: white; border: 1px solid #ddd; border-radius: 8px;">
+      <div style="font-size: 14px; color: #666; margin-bottom: 4px;">Pending</div>
+      <div style="font-size: 28px; font-weight: 600; color: #ffa500;"><%= @stats[:pending] %></div>
     </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="text-sm text-gray-600 mb-1">Completed</div>
-      <div class="text-3xl font-bold text-green-600"><%= @stats[:completed] %></div>
+    <div style="padding: 16px; background: white; border: 1px solid #ddd; border-radius: 8px;">
+      <div style="font-size: 14px; color: #666; margin-bottom: 4px;">Completed</div>
+      <div style="font-size: 28px; font-weight: 600; color: #28a745;"><%= @stats[:completed] %></div>
     </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-      <div class="text-sm text-gray-600 mb-1">Failed</div>
-      <div class="text-3xl font-bold text-red-600"><%= @stats[:failed] %></div>
+    <div style="padding: 16px; background: white; border: 1px solid #ddd; border-radius: 8px;">
+      <div style="font-size: 14px; color: #666; margin-bottom: 4px;">Failed</div>
+      <div style="font-size: 28px; font-weight: 600; color: #dc3545;"><%= @stats[:failed] %></div>
     </div>
   </div>
 
   <!-- Credits List -->
-  <div class="bg-white rounded-lg shadow">
-    <div class="px-6 py-4 border-b border-gray-200">
-      <h2 class="text-xl font-semibold">Credits in this Campaign</h2>
+  <div style="background: white; border: 1px solid #ddd; border-radius: 8px; padding: 24px;">
+    <div style="margin-bottom: 16px;">
+      <h2 style="font-size: 18px; font-weight: 600; margin: 0;">Credits in this Campaign</h2>
     </div>
 
-    <% if @credits.empty? %>
-      <div class="p-8 text-center text-gray-600">
-        No credits in this campaign yet.
-      </div>
-    <% else %>
-      <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
-          <thead class="bg-gray-50">
-            <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expires</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Error</th>
+    <% if @credits.any? %>
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr style="border-bottom: 2px solid #ddd; text-align: left;">
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Email</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Amount</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Expiry Hours</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Expires At</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Status</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Created</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px; text-align: center;">Actions</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody>
             <% @credits.each do |credit| %>
-              <tr class="hover:bg-gray-50">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <% case credit.status %>
-                  <% when 'pending' %>
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
-                  <% when 'processing' %>
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Processing</span>
-                  <% when 'completed' %>
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
-                  <% when 'failed' %>
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Failed</span>
-                  <% end %>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= credit.email %></td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">$<%= number_with_precision(credit.amount, precision: 2) %></td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  <%= credit.expires_at.strftime("%b %d, %Y") %>
+              <%
+                # Use direct customer URL if we have the customer ID, otherwise use search
+                customer_url = if credit.shopify_customer_url
+                  credit.shopify_customer_url
+                else
+                  shop = credit.shop
+                  "https://#{shop.shopify_domain}/admin/customers?query=#{CGI.escape(credit.email)}"
+                end
+              %>
+              <tr style="border-bottom: 1px solid #eee;">
+                <td style="padding: 12px; font-size: 14px;"><%= credit.email %></td>
+                <td style="padding: 12px; font-size: 14px; font-weight: 600;">$<%= number_with_precision(credit.amount, precision: 2) %></td>
+                <td style="padding: 12px; font-size: 14px;"><%= credit.expiry_hours %>h</td>
+                <td style="padding: 12px; font-size: 14px; <%= 'color: #dc3545;' if credit.expired? %>">
+                  <%= credit.expires_at.strftime('%Y-%m-%d %H:%M') %>
                   <% if credit.expired? %>
-                    <span class="text-red-500 ml-1">(Expired)</span>
+                    <span style="font-size: 12px; color: #dc3545;">(expired)</span>
                   <% end %>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><%= credit.created_at.strftime("%b %d, %Y") %></td>
-                <td class="px-6 py-4 text-sm text-red-600">
-                  <%= credit.error_message.present? ? truncate(credit.error_message, length: 50) : "-" %>
+                <td style="padding: 12px; font-size: 14px;">
+                  <span style="padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 600;
+                    <%= case credit.status
+                        when 'pending' then 'background: #fff3cd; color: #856404;'
+                        when 'processing' then 'background: #cce5ff; color: #004085;'
+                        when 'completed' then 'background: #d4edda; color: #155724;'
+                        when 'failed' then 'background: #f8d7da; color: #721c24;'
+                        end %>">
+                    <%= credit.status.capitalize %>
+                  </span>
+                </td>
+                <td style="padding: 12px; font-size: 14px; color: #666;">
+                  <%= time_ago_in_words(credit.created_at) %> ago
+                </td>
+                <td style="padding: 12px; text-align: center;">
+                  <%= link_to customer_url, target: "_blank", style: "color: #5C6AC4; text-decoration: none; display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 4px; transition: background-color 0.2s;", onmouseover: "this.style.backgroundColor='#f1f2f4'", onmouseout: "this.style.backgroundColor=''" do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span style="font-size: 13px;">View</span>
+                  <% end %>
                 </td>
               </tr>
+              <% if credit.error_message.present? %>
+                <tr style="border-bottom: 1px solid #eee;">
+                  <td colspan="7" style="padding: 8px 12px; background: #f8d7da; font-size: 13px; color: #721c24;">
+                    <strong>Error:</strong> <%= credit.error_message %>
+                  </td>
+                </tr>
+              <% end %>
             <% end %>
           </tbody>
         </table>
       </div>
 
       <% if @campaign.store_credits.count > 100 %>
-        <div class="px-6 py-4 border-t border-gray-200 text-sm text-gray-600">
-          Showing latest 100 credits out of <%= @campaign.total_credits_count %> total.
-        </div>
+        <p style="margin-top: 16px; color: #666; font-size: 14px; text-align: center;">
+          Showing latest 100 credits out of <%= @campaign.total_credits_count %> total
+        </p>
       <% end %>
+    <% else %>
+      <div style="text-align: center; padding: 40px; color: #666;">
+        <p style="font-size: 16px; margin-bottom: 8px;">No credits in this campaign yet</p>
+        <p style="font-size: 14px;">Credits will appear here when you upload a CSV with this campaign selected</p>
+      </div>
     <% end %>
   </div>
 </div>
