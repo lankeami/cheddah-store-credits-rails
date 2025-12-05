@@ -56,24 +56,10 @@ class ShopifyStoreCreditService
 
     # Extract customer ID for later use
     customer_id = customer['id']
-
-    # Get the store credit account ID from the customer
-    # Note: The storeCreditAccountCredit mutation will create the account if it doesn't exist
-    account = customer.dig('storeCreditAccounts', 'edges', 0, 'node')
-
-    if account
-      # Account exists, use its ID
-      account_id = account['id']
-      Rails.logger.info("Using existing store credit account: #{account_id}")
-    else
-      # Account doesn't exist yet, derive the ID from customer ID
-      # The mutation will create it automatically
-      customer_id = customer['id']
-      account_id = customer_id.gsub('/Customer/', '/StoreCreditAccount/')
-      Rails.logger.info("Store credit account doesn't exist yet. Will be auto-created with ID: #{account_id}")
-    end
+    Rails.logger.info("Creating store credit for customer: #{customer_id}")
 
     # Create the store credit using storeCreditAccountCredit mutation
+    # Note: The mutation accepts Customer ID directly and will auto-create the store credit account if needed
     mutation = <<~GRAPHQL
       mutation storeCreditAccountCredit($id: ID!, $creditInput: StoreCreditAccountCreditInput!) {
         storeCreditAccountCredit(id: $id, creditInput: $creditInput) {
@@ -84,6 +70,13 @@ class ShopifyStoreCreditService
               currencyCode
             }
             expiresAt
+            account {
+              id
+              balance {
+                amount
+                currencyCode
+              }
+            }
           }
           userErrors {
             field
@@ -94,7 +87,7 @@ class ShopifyStoreCreditService
     GRAPHQL
 
     variables = {
-      id: account_id,
+      id: customer_id,
       creditInput: {
         creditAmount: {
           amount: amount.to_s,
@@ -122,11 +115,7 @@ class ShopifyStoreCreditService
       errors = response['data']['storeCreditAccountCredit']['userErrors']
       Rails.logger.error("User errors: #{errors.inspect}")
 
-      # Check if it's the "account does not exist" error
       error_message = errors.map { |e| "#{e['field']}: #{e['message']}" }.join(', ')
-      if error_message.include?('Store credit account does not exist')
-        error_message += ". To fix: Go to Shopify Admin → Customers → #{email} → Grant a small store credit to create the account, then try again."
-      end
 
       return {
         success: false,
@@ -200,50 +189,10 @@ class ShopifyStoreCreditService
     accounts.first.dig('node', 'id')
   end
 
-  # Find customer by email and include their store credit accounts
+  # Find customer by email
+  # We can use the simpler query since we don't need store credit account info anymore
   def find_customer_with_store_credit_account(email)
-    query = <<~GRAPHQL
-      query getCustomerWithStoreCredit($query: String!) {
-        customers(first: 1, query: $query) {
-          edges {
-            node {
-              id
-              storeCreditAccounts(first: 1) {
-                edges {
-                  node {
-                    id
-                    balance {
-                      amount
-                      currencyCode
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    GRAPHQL
-
-    variables = {
-      query: "email:#{email}"
-    }
-
-    Rails.logger.info("Searching for customer with query: #{variables[:query]}")
-    response = execute_graphql(query, variables)
-    Rails.logger.info("Customer search response: #{response.inspect}")
-
-    # Check for errors
-    if response['errors']
-      Rails.logger.error("GraphQL errors: #{response['errors'].inspect}")
-      return nil
-    end
-
-    customers = response.dig('data', 'customers', 'edges')
-
-    return nil if customers.nil? || customers.empty?
-
-    customers.first['node']
+    find_customer_by_email(email)
   end
 
   # Find customer by email using GraphQL (simple version without store credit data)
@@ -315,8 +264,6 @@ class ShopifyStoreCreditService
           customer {
             id
             email
-            firstName
-            lastName
           }
           userErrors {
             field
@@ -326,19 +273,11 @@ class ShopifyStoreCreditService
       }
     GRAPHQL
 
-    # Parse name from email if not provided
-    if first_name.nil? && last_name.nil?
-      email_parts = email.split('@').first.split(/[._-]/)
-      first_name = email_parts.first&.capitalize || "New"
-      last_name = email_parts.last&.capitalize if email_parts.length > 1
-    end
-
+    # Only include email - firstName and lastName require protected customer data access
     variables = {
       input: {
-        email: email,
-        firstName: first_name,
-        lastName: last_name
-      }.compact
+        email: email
+      }
     }
 
     Rails.logger.info("Creating customer with email: #{email}")
@@ -366,14 +305,11 @@ class ShopifyStoreCreditService
     customer_data = response.dig('data', 'customerCreate', 'customer')
 
     if customer_data
-      # Return the customer in the same format as find_customer_with_store_credit_account
-      # but without store credit accounts since they don't exist yet
+      # Return the customer in the same format as find_customer_by_email
       {
         success: true,
         customer: {
-          'id' => customer_data['id'],
-          'email' => customer_data['email'],
-          'storeCreditAccounts' => { 'edges' => [] }
+          'id' => customer_data['id']
         }
       }
     else
