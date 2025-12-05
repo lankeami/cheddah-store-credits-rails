@@ -1,5 +1,5 @@
 class CampaignsController < ApplicationController
-  before_action :set_campaign, only: [:show, :edit, :update, :destroy]
+  before_action :set_campaign, only: [:show, :edit, :update]
 
   def index
     @campaigns = current_shop.campaigns.order(created_at: :desc).page(params[:page]).per(20)
@@ -33,12 +33,6 @@ class CampaignsController < ApplicationController
     else
       render :edit
     end
-  end
-
-  def destroy
-    name = @campaign.name
-    @campaign.destroy
-    redirect_to campaigns_path(shopify_params), notice: "Campaign '#{name}' deleted successfully."
   end
 
   private

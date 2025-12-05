@@ -5,13 +5,12 @@ Rails.application.routes.draw do
   get 'home/index'
 
   # Campaigns
-  resources :campaigns
+  resources :campaigns, except: [:destroy]
 
   # Store Credits
-  resources :store_credits, only: [:index, :destroy] do
+  resources :store_credits, only: [:index] do
     collection do
       post :upload
-      delete :destroy_all
     end
   end
 
