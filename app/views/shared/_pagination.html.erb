@@ -1,0 +1,51 @@
+<% if collection.total_pages > 1 %>
+  <%
+    # Build shopify params from current request
+    shopify_params = {
+      shop: params[:shop],
+      host: params[:host],
+      embedded: params[:embedded],
+      id_token: params[:id_token],
+      page: nil
+    }.compact
+  %>
+  <div style="margin-top: 24px; padding: 16px; background: white; border: 1px solid #ddd; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="color: #666; font-size: 14px;">
+      Showing <%= collection.offset_value + 1 %>-<%= [collection.offset_value + collection.limit_value, collection.total_count].min %> of <%= collection.total_count %> records
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+      <%= link_to_unless collection.first_page?, "First", request.path + "?" + shopify_params.merge(page: 1).to_query,
+            style: "padding: 8px 16px; background: #{collection.first_page? ? '#f0f0f0' : '#007bff'}; color: #{collection.first_page? ? '#999' : 'white'}; border: none; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 14px; #{collection.first_page? ? 'cursor: not-allowed;' : 'cursor: pointer;'}",
+            onmouseover: collection.first_page? ? "" : "this.style.backgroundColor='#0056b3'",
+            onmouseout: collection.first_page? ? "" : "this.style.backgroundColor='#007bff'" do %>
+        <span style="padding: 8px 16px; background: #f0f0f0; color: #999; border: none; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 14px; cursor: not-allowed;">First</span>
+      <% end %>
+
+      <%= link_to_unless collection.first_page?, "Previous", request.path + "?" + shopify_params.merge(page: collection.prev_page).to_query,
+            style: "padding: 8px 16px; background: #{collection.first_page? ? '#f0f0f0' : '#007bff'}; color: #{collection.first_page? ? '#999' : 'white'}; border: none; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 14px; #{collection.first_page? ? 'cursor: not-allowed;' : 'cursor: pointer;'}",
+            onmouseover: collection.first_page? ? "" : "this.style.backgroundColor='#0056b3'",
+            onmouseout: collection.first_page? ? "" : "this.style.backgroundColor='#007bff'" do %>
+        <span style="padding: 8px 16px; background: #f0f0f0; color: #999; border: none; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 14px; cursor: not-allowed;">Previous</span>
+      <% end %>
+
+      <span style="padding: 8px 16px; background: #f8f9fa; color: #333; border: 1px solid #ddd; border-radius: 4px; font-weight: 600; font-size: 14px;">
+        Page <%= collection.current_page %> of <%= collection.total_pages %>
+      </span>
+
+      <%= link_to_unless collection.last_page?, "Next", request.path + "?" + shopify_params.merge(page: collection.next_page).to_query,
+            style: "padding: 8px 16px; background: #{collection.last_page? ? '#f0f0f0' : '#007bff'}; color: #{collection.last_page? ? '#999' : 'white'}; border: none; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 14px; #{collection.last_page? ? 'cursor: not-allowed;' : 'cursor: pointer;'}",
+            onmouseover: collection.last_page? ? "" : "this.style.backgroundColor='#0056b3'",
+            onmouseout: collection.last_page? ? "" : "this.style.backgroundColor='#007bff'" do %>
+        <span style="padding: 8px 16px; background: #f0f0f0; color: #999; border: none; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 14px; cursor: not-allowed;">Next</span>
+      <% end %>
+
+      <%= link_to_unless collection.last_page?, "Last", request.path + "?" + shopify_params.merge(page: collection.total_pages).to_query,
+            style: "padding: 8px 16px; background: #{collection.last_page? ? '#f0f0f0' : '#007bff'}; color: #{collection.last_page? ? '#999' : 'white'}; border: none; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 14px; #{collection.last_page? ? 'cursor: not-allowed;' : 'cursor: pointer;'}",
+            onmouseover: collection.last_page? ? "" : "this.style.backgroundColor='#0056b3'",
+            onmouseout: collection.last_page? ? "" : "this.style.backgroundColor='#007bff'" do %>
+        <span style="padding: 8px 16px; background: #f0f0f0; color: #999; border: none; border-radius: 4px; font-weight: 600; text-decoration: none; font-size: 14px; cursor: not-allowed;">Last</span>
+      <% end %>
+    </div>
+  </div>
+<% end %>

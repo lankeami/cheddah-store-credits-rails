@@ -185,11 +185,7 @@ another@example.com,50.00,168</pre>
         </table>
       </div>
 
-      <% if @store_credits.count >= 100 %>
-        <p style="margin-top: 16px; color: #666; font-size: 14px; text-align: center;">
-          Showing latest 100 records
-        </p>
-      <% end %>
+      <%= render 'shared/pagination', collection: @store_credits %>
     <% else %>
       <div style="text-align: center; padding: 40px; color: #666;">
         <p style="font-size: 16px; margin-bottom: 8px;">No store credits uploaded yet</p>

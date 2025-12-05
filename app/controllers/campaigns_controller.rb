@@ -2,12 +2,12 @@ class CampaignsController < ApplicationController
   before_action :set_campaign, only: [:show, :edit, :update, :destroy]
 
   def index
-    @campaigns = current_shop.campaigns.order(created_at: :desc)
+    @campaigns = current_shop.campaigns.order(created_at: :desc).page(params[:page]).per(20)
   end
 
   def show
     @stats = @campaign.stats
-    @credits = @campaign.store_credits.order(created_at: :desc).limit(100)
+    @credits = @campaign.store_credits.order(created_at: :desc).page(params[:page]).per(20)
   end
 
   def new

@@ -27,6 +27,9 @@ gem 'shopify_app', '~> 22.0'
 # Cron job scheduling
 gem 'whenever', require: false
 
+# Pagination
+gem 'kaminari'
+
 # Performance
 gem 'bootsnap', require: false
 

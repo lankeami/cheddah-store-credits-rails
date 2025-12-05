@@ -82,6 +82,8 @@
           </tbody>
         </table>
       </div>
+
+      <%= render 'shared/pagination', collection: @campaigns %>
     <% else %>
       <div style="text-align: center; padding: 40px; color: #666;">
         <p style="font-size: 16px; margin-bottom: 8px;">No campaigns yet</p>
