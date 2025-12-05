@@ -4,7 +4,7 @@ class StoreCreditsController < ApplicationController
   def index
     @shop = current_shop
     @store_credits = current_shop.store_credits.order(created_at: :desc).page(params[:page]).per(20)
-    @campaigns = current_shop.campaigns.order(:name)
+    @campaigns = current_shop.campaigns.order(created_at: :desc)
     @stats = {
       total: current_shop.store_credits.count,
       pending: current_shop.store_credits.pending.count,
