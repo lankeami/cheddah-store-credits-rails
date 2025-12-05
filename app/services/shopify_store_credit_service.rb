@@ -11,7 +11,7 @@ class ShopifyStoreCreditService
 
   # Create or find a customer, ensure they have a store credit account, and add credit
   # This is the main method to use for adding credits, especially for new customers
-  def create_customer_and_credit(email:, amount:, expires_at:, first_name: nil, last_name: nil, note: nil)
+  def create_customer_and_credit(email:, amount:, expires_at:, first_name: nil, last_name: nil, note: nil, campaign_name: nil)
     # First, try to find existing customer
     customer = find_customer_with_store_credit_account(email)
 
@@ -32,6 +32,15 @@ class ShopifyStoreCreditService
 
     # Extract customer ID before attempting to create credit
     customer_id = extract_gid(customer['id'])
+
+    # Add campaign tag if campaign_name is provided
+    if campaign_name.present?
+      tag_result = add_customer_tag(customer['id'], "cheddah_campaign:#{campaign_name}")
+      unless tag_result[:success]
+        Rails.logger.warn("Failed to add campaign tag: #{tag_result[:error]}")
+        # Continue processing even if tagging fails
+      end
+    end
 
     # Now add the store credit
     result = create_store_credit(email: email, amount: amount, expires_at: expires_at, note: note)
@@ -321,6 +330,60 @@ class ShopifyStoreCreditService
     end
   rescue => e
     Rails.logger.error("Shopify API Error: #{e.message}\n#{e.backtrace.join("\n")}")
+    {
+      success: false,
+      error: e.message
+    }
+  end
+
+  # Add a tag to a customer
+  def add_customer_tag(customer_id, tag)
+    mutation = <<~GRAPHQL
+      mutation tagsAdd($id: ID!, $tags: [String!]!) {
+        tagsAdd(id: $id, tags: $tags) {
+          node {
+            id
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }
+    GRAPHQL
+
+    variables = {
+      id: customer_id,
+      tags: [tag]
+    }
+
+    Rails.logger.info("Adding tag '#{tag}' to customer #{customer_id}")
+    response = execute_graphql(mutation, variables)
+    Rails.logger.info("Tag addition response: #{response.inspect}")
+
+    # Check for GraphQL errors
+    if response['errors']
+      Rails.logger.error("GraphQL errors: #{response['errors'].inspect}")
+      return {
+        success: false,
+        error: response['errors'].map { |e| e['message'] }.join(', ')
+      }
+    end
+
+    if response.dig('data', 'tagsAdd', 'userErrors')&.any?
+      errors = response['data']['tagsAdd']['userErrors']
+      Rails.logger.error("User errors: #{errors.inspect}")
+      return {
+        success: false,
+        error: errors.map { |e| "#{e['field']}: #{e['message']}" }.join(', ')
+      }
+    end
+
+    {
+      success: true
+    }
+  rescue => e
+    Rails.logger.error("Tag addition error: #{e.message}")
     {
       success: false,
       error: e.message

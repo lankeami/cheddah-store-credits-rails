@@ -12,7 +12,12 @@
       "Bash(docker-compose restart:*)",
       "Bash(bin/rails db:migrate:*)",
       "Bash(bundle install:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(bin/rails generate:*)",
+      "Bash(DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bin/rails db:migrate:*)",
+      "Bash(DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bundle exec rails db:migrate:*)",
+      "Bash(bin/rails db:rollback:*)",
+      "Bash(DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bin/rails db:migrate:status:*)"
     ],
     "deny": [],
     "ask": []

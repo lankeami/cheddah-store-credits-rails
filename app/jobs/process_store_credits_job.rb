@@ -26,12 +26,20 @@ class ProcessStoreCreditsJob < ActiveJob::Base
       begin
         credit.mark_as_processing!
 
+        # Build note with campaign info if available
+        note = if credit.campaign
+          "Campaign: #{credit.campaign.name} - Expires #{credit.expires_at.strftime('%Y-%m-%d')}"
+        else
+          "Store credit - Expires #{credit.expires_at.strftime('%Y-%m-%d')}"
+        end
+
         # Use create_customer_and_credit to handle both new and existing customers
         result = service.create_customer_and_credit(
           email: credit.email,
           amount: credit.amount,
           expires_at: credit.expires_at,
-          note: "Store credit - expires #{credit.expires_at.strftime('%Y-%m-%d')}"
+          note: note,
+          campaign_name: credit.campaign&.name
         )
 
         if result[:success]

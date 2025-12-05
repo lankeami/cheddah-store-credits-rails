@@ -7,6 +7,9 @@ class StoreCredit < ActiveRecord::Base
   validates :expiry_hours, presence: true, numericality: { greater_than: 0, only_integer: true }
   validates :status, presence: true, inclusion: { in: %w[pending processing completed failed] }
 
+  # Validate uniqueness: one completed credit per customer per campaign
+  validate :unique_completed_credit_per_campaign
+
   before_validation :calculate_expires_at, on: :create
 
   scope :pending, -> { where(status: 'pending') }
@@ -76,5 +79,25 @@ class StoreCredit < ActiveRecord::Base
 
   def calculate_expires_at
     self.expires_at = Time.current + expiry_hours.hours if expiry_hours.present?
+  end
+
+  def unique_completed_credit_per_campaign
+    # Only validate when setting status to completed
+    return unless status == 'completed'
+
+    # Check if there's already a completed credit for this email and campaign
+    # Exclude the current record if it's being updated
+    existing = shop.store_credits
+                   .where(email: email, campaign_id: campaign_id, status: 'completed')
+                   .where.not(id: id)
+                   .exists?
+
+    if existing
+      if campaign
+        errors.add(:base, "This customer has already received store credit from the '#{campaign.name}' campaign")
+      else
+        errors.add(:base, "This customer has already received store credit")
+      end
+    end
   end
 end
