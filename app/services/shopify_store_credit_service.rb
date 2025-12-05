@@ -12,30 +12,43 @@ class ShopifyStoreCreditService
   # Create or find a customer, ensure they have a store credit account, and add credit
   # This is the main method to use for adding credits, especially for new customers
   def create_customer_and_credit(email:, amount:, expires_at:, first_name: nil, last_name: nil, note: nil, campaign_name: nil)
-    # First, try to find existing customer
-    customer = find_customer_with_store_credit_account(email)
+    # First, check if we have this customer cached in our database
+    shopify_customer = shop.shopify_customers.find_by(email: email)
 
-    # If customer doesn't exist, create them
-    unless customer
-      Rails.logger.info("Customer #{email} not found, creating new customer...")
-      result = create_customer(email: email, first_name: first_name, last_name: last_name)
+    # If not cached, look them up in Shopify
+    unless shopify_customer
+      customer = find_customer_with_store_credit_account(email)
 
-      if result[:success]
-        customer = result[:customer]
-      else
-        return {
-          success: false,
-          error: "Failed to create customer: #{result[:error]}"
-        }
+      # If customer doesn't exist in Shopify, create them
+      unless customer
+        Rails.logger.info("Customer #{email} not found, creating new customer...")
+        result = create_customer(email: email, first_name: first_name, last_name: last_name)
+
+        if result[:success]
+          customer = result[:customer]
+        else
+          return {
+            success: false,
+            error: "Failed to create customer: #{result[:error]}"
+          }
+        end
       end
-    end
 
-    # Extract customer ID before attempting to create credit
-    customer_id = extract_gid(customer['id'])
+      # Cache the customer in our database
+      customer_gid = customer['id']
+      customer_id = extract_gid(customer_gid)
+      shopify_customer = ShopifyCustomer.find_or_create_from_shopify(
+        shop: shop,
+        email: email,
+        shopify_customer_id: customer_id
+      )
+      Rails.logger.info("Cached customer #{email} with ID #{customer_id}")
+    end
 
     # Add campaign tag if campaign_name is provided
     if campaign_name.present?
-      tag_result = add_customer_tag(customer['id'], "cheddah_campaign:#{campaign_name}")
+      customer_gid = "gid://shopify/Customer/#{shopify_customer.shopify_customer_id}"
+      tag_result = add_customer_tag(customer_gid, "cheddah_campaign:#{campaign_name}")
       unless tag_result[:success]
         Rails.logger.warn("Failed to add campaign tag: #{tag_result[:error]}")
         # Continue processing even if tagging fails
@@ -45,8 +58,8 @@ class ShopifyStoreCreditService
     # Now add the store credit
     result = create_store_credit(email: email, amount: amount, expires_at: expires_at, note: note)
 
-    # Ensure customer_id is always included in the result
-    result[:customer_id] = customer_id unless result[:customer_id]
+    # Ensure shopify_customer is always included in the result
+    result[:shopify_customer] = shopify_customer
 
     result
   end

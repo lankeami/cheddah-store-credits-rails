@@ -1,6 +1,7 @@
 class StoreCredit < ActiveRecord::Base
   belongs_to :shop
   belongs_to :campaign, optional: true
+  belongs_to :shopify_customer, optional: true
 
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :amount, presence: true, numericality: { greater_than: 0 }
@@ -21,23 +22,37 @@ class StoreCredit < ActiveRecord::Base
     update!(status: 'processing', processed_at: Time.current)
   end
 
-  def mark_as_completed!(credit_id, customer_id = nil)
-    update!(
+  def mark_as_completed!(credit_id, shopify_customer = nil)
+    attrs = {
       status: 'completed',
       shopify_credit_id: credit_id,
-      shopify_customer_id: customer_id,
       processed_at: Time.current,
       error_message: nil
-    )
+    }
+
+    # Set shopify_customer relationship if provided
+    if shopify_customer
+      attrs[:shopify_customer] = shopify_customer
+      attrs[:shopify_customer_id_legacy] = shopify_customer.shopify_customer_id
+    end
+
+    update!(attrs)
   end
 
-  def mark_as_failed!(error, customer_id = nil)
-    update!(
+  def mark_as_failed!(error, shopify_customer = nil)
+    attrs = {
       status: 'failed',
-      shopify_customer_id: customer_id,
       processed_at: Time.current,
       error_message: error
-    )
+    }
+
+    # Set shopify_customer relationship if provided
+    if shopify_customer
+      attrs[:shopify_customer] = shopify_customer
+      attrs[:shopify_customer_id_legacy] = shopify_customer.shopify_customer_id
+    end
+
+    update!(attrs)
   end
 
   def expired?
@@ -46,8 +61,12 @@ class StoreCredit < ActiveRecord::Base
 
   # Generate Shopify admin customer URL
   def shopify_customer_url
-    return nil unless shopify_customer_id && shop
-    "https://#{shop.shopify_domain}/admin/customers/#{shopify_customer_id}"
+    # Prefer the denormalized relationship
+    return shopify_customer.shopify_customer_url if shopify_customer
+
+    # Fallback to legacy shopify_customer_id_legacy column
+    return nil unless shopify_customer_id_legacy && shop
+    "https://#{shop.shopify_domain}/admin/customers/#{shopify_customer_id_legacy}"
   end
 
   def process_now!

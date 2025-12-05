@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_02_045943) do
+ActiveRecord::Schema[7.1].define(version: 2025_12_05_041528) do
   create_table "campaigns", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
     t.bigint "shop_id", null: false
     t.string "name", null: false
@@ -19,6 +19,17 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_02_045943) do
     t.datetime "updated_at", null: false
     t.index ["shop_id", "name"], name: "index_campaigns_on_shop_id_and_name", unique: true
     t.index ["shop_id"], name: "index_campaigns_on_shop_id"
+  end
+
+  create_table "shopify_customers", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
+    t.bigint "shop_id", null: false
+    t.string "email", null: false
+    t.string "shopify_customer_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["shop_id", "email"], name: "index_shopify_customers_on_shop_id_and_email", unique: true
+    t.index ["shop_id", "shopify_customer_id"], name: "index_shopify_customers_on_shop_id_and_shopify_customer_id", unique: true
+    t.index ["shop_id"], name: "index_shopify_customers_on_shop_id"
   end
 
   create_table "shops", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
@@ -86,15 +97,20 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_02_045943) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "campaign_id"
+    t.string "shopify_customer_id_legacy"
+    t.bigint "shopify_customer_id"
     t.index ["campaign_id", "status"], name: "index_store_credits_on_campaign_id_and_status"
     t.index ["campaign_id"], name: "index_store_credits_on_campaign_id"
     t.index ["expires_at"], name: "index_store_credits_on_expires_at"
     t.index ["shop_id", "email"], name: "index_store_credits_on_shop_id_and_email"
     t.index ["shop_id"], name: "index_store_credits_on_shop_id"
+    t.index ["shopify_customer_id"], name: "index_store_credits_on_shopify_customer_id"
     t.index ["status"], name: "index_store_credits_on_status"
   end
 
   add_foreign_key "campaigns", "shops"
+  add_foreign_key "shopify_customers", "shops"
   add_foreign_key "store_credits", "campaigns"
+  add_foreign_key "store_credits", "shopify_customers"
   add_foreign_key "store_credits", "shops"
 end

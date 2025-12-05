@@ -17,7 +17,9 @@
       "Bash(DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bin/rails db:migrate:*)",
       "Bash(DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bundle exec rails db:migrate:*)",
       "Bash(bin/rails db:rollback:*)",
-      "Bash(DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bin/rails db:migrate:status:*)"
+      "Bash(DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bin/rails db:migrate:status:*)",
+      "Bash(mysql:*)",
+      "Bash(DISABLE_DATABASE_ENVIRONMENT_CHECK=1 bundle exec rake:*)"
     ],
     "deny": [],
     "ask": []
