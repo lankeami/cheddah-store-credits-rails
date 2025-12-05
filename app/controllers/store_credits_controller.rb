@@ -2,6 +2,7 @@ class StoreCreditsController < ApplicationController
   require 'csv'
 
   def index
+    @shop = current_shop
     @store_credits = current_shop.store_credits.order(created_at: :desc).limit(100)
     @campaigns = current_shop.campaigns.order(:name)
     @stats = {

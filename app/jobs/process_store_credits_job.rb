@@ -35,11 +35,11 @@ class ProcessStoreCreditsJob < ActiveJob::Base
         )
 
         if result[:success]
-          credit.mark_as_completed!(result[:credit_id])
+          credit.mark_as_completed!(result[:credit_id], result[:customer_id])
           success_count += 1
           Rails.logger.info("✓ Created credit for #{credit.email}: $#{credit.amount}")
         else
-          credit.mark_as_failed!(result[:error])
+          credit.mark_as_failed!(result[:error], result[:customer_id])
           failure_count += 1
           Rails.logger.warn("✗ Failed credit for #{credit.email}: #{result[:error]}")
         end

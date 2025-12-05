@@ -30,8 +30,16 @@ class ShopifyStoreCreditService
       end
     end
 
+    # Extract customer ID before attempting to create credit
+    customer_id = extract_gid(customer['id'])
+
     # Now add the store credit
-    create_store_credit(email: email, amount: amount, expires_at: expires_at, note: note)
+    result = create_store_credit(email: email, amount: amount, expires_at: expires_at, note: note)
+
+    # Ensure customer_id is always included in the result
+    result[:customer_id] = customer_id unless result[:customer_id]
+
+    result
   end
 
   # Create a customer account credit using GraphQL
@@ -45,6 +53,9 @@ class ShopifyStoreCreditService
         error: "Customer with email #{email} not found in Shopify. Use create_customer_and_credit to create the customer first."
       }
     end
+
+    # Extract customer ID for later use
+    customer_id = customer['id']
 
     # Get the store credit account ID from the customer
     # Note: The storeCreditAccountCredit mutation will create the account if it doesn't exist
@@ -102,7 +113,8 @@ class ShopifyStoreCreditService
       Rails.logger.error("GraphQL errors: #{response['errors'].inspect}")
       return {
         success: false,
-        error: response['errors'].map { |e| e['message'] }.join(', ')
+        error: response['errors'].map { |e| e['message'] }.join(', '),
+        customer_id: extract_gid(customer_id)
       }
     end
 
@@ -118,7 +130,8 @@ class ShopifyStoreCreditService
 
       return {
         success: false,
-        error: error_message
+        error: error_message,
+        customer_id: extract_gid(customer_id)
       }
     end
 
@@ -128,6 +141,7 @@ class ShopifyStoreCreditService
       {
         success: true,
         credit_id: extract_gid(credit_data['id']),
+        customer_id: extract_gid(customer_id),
         amount: credit_data.dig('amount', 'amount'),
         currency: credit_data.dig('amount', 'currencyCode'),
         expires_at: credit_data['expiresAt']
@@ -136,15 +150,19 @@ class ShopifyStoreCreditService
       Rails.logger.error("No credit data in response. Full response: #{response.inspect}")
       {
         success: false,
-        error: 'Failed to create store credit - no response from Shopify'
+        error: 'Failed to create store credit - no response from Shopify',
+        customer_id: extract_gid(customer_id)
       }
     end
   rescue => e
     Rails.logger.error("Shopify API Error: #{e.message}\n#{e.backtrace.join("\n")}")
-    {
+    # customer_id might not be available in rescue block, so only include if it exists
+    result = {
       success: false,
       error: e.message
     }
+    result[:customer_id] = extract_gid(customer_id) if defined?(customer_id) && customer_id
+    result
   end
 
   # Find store credit account ID for an email

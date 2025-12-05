@@ -18,18 +18,20 @@ class StoreCredit < ActiveRecord::Base
     update!(status: 'processing', processed_at: Time.current)
   end
 
-  def mark_as_completed!(credit_id)
+  def mark_as_completed!(credit_id, customer_id = nil)
     update!(
       status: 'completed',
       shopify_credit_id: credit_id,
+      shopify_customer_id: customer_id,
       processed_at: Time.current,
       error_message: nil
     )
   end
 
-  def mark_as_failed!(error)
+  def mark_as_failed!(error, customer_id = nil)
     update!(
       status: 'failed',
+      shopify_customer_id: customer_id,
       processed_at: Time.current,
       error_message: error
     )
@@ -37,6 +39,12 @@ class StoreCredit < ActiveRecord::Base
 
   def expired?
     expires_at && expires_at < Time.current
+  end
+
+  # Generate Shopify admin customer URL
+  def shopify_customer_url
+    return nil unless shopify_customer_id && shop
+    "https://#{shop.shopify_domain}/admin/customers/#{shopify_customer_id}"
   end
 
   def process_now!
@@ -53,9 +61,9 @@ class StoreCredit < ActiveRecord::Base
     )
 
     if result[:success]
-      mark_as_completed!(result[:credit_id])
+      mark_as_completed!(result[:credit_id], result[:customer_id])
     else
-      mark_as_failed!(result[:error])
+      mark_as_failed!(result[:error], result[:customer_id])
     end
 
     result

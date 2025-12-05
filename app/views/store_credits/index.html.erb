@@ -103,17 +103,8 @@ another@example.com,50.00,168</pre>
 
   <!-- Credits List -->
   <div style="background: white; border: 1px solid #ddd; border-radius: 8px; padding: 24px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+    <div style="margin-bottom: 16px;">
       <h2 style="font-size: 18px; font-weight: 600; margin: 0;">Recent Store Credits</h2>
-      <% if @store_credits.any? %>
-        <%= button_to 'Delete All', destroy_all_store_credits_path,
-            method: :delete,
-            params: { shop: params[:shop], host: params[:host], embedded: params[:embedded], id_token: params[:id_token] },
-            data: { confirm: 'Are you sure you want to delete all store credits?', turbo: false },
-            style: 'padding: 8px 16px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px;',
-            onmouseover: "this.style.backgroundColor='#c82333'",
-            onmouseout: "this.style.backgroundColor='#dc3545'" %>
-      <% end %>
     </div>
 
     <% if @store_credits.any? %>
@@ -128,17 +119,25 @@ another@example.com,50.00,168</pre>
               <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Expires At</th>
               <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Status</th>
               <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Created</th>
-              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px;">Actions</th>
+              <th style="padding: 12px; font-weight: 600; color: #666; font-size: 14px; text-align: center;">Actions</th>
             </tr>
           </thead>
           <tbody>
             <% @store_credits.each do |credit| %>
+              <%
+                # Use direct customer URL if we have the customer ID, otherwise use search
+                customer_url = if credit.shopify_customer_url
+                  credit.shopify_customer_url
+                else
+                  "https://#{@shop.shopify_domain}/admin/customers?query=#{CGI.escape(credit.email)}"
+                end
+              %>
               <tr style="border-bottom: 1px solid #eee;">
                 <td style="padding: 12px; font-size: 14px;"><%= credit.email %></td>
                 <td style="padding: 12px; font-size: 14px; font-weight: 600;">$<%= number_with_precision(credit.amount, precision: 2) %></td>
                 <td style="padding: 12px; font-size: 14px;">
                   <% if credit.campaign %>
-                    <%= link_to credit.campaign.name, campaign_path(credit.campaign), style: "color: #007bff; text-decoration: none;" %>
+                    <%= link_to credit.campaign.name, campaign_path(credit.campaign, shopify_path_params), style: "color: #007bff; text-decoration: none;" %>
                   <% else %>
                     <span style="color: #999;">-</span>
                   <% end %>
@@ -164,14 +163,14 @@ another@example.com,50.00,168</pre>
                 <td style="padding: 12px; font-size: 14px; color: #666;">
                   <%= time_ago_in_words(credit.created_at) %> ago
                 </td>
-                <td style="padding: 12px;">
-                  <%= button_to 'Delete', store_credit_path(credit),
-                      method: :delete,
-                      params: { shop: params[:shop], host: params[:host], embedded: params[:embedded], id_token: params[:id_token] },
-                      data: { confirm: 'Are you sure?', turbo: false },
-                      style: 'padding: 6px 12px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;',
-                      onmouseover: "this.style.backgroundColor='#545b62'",
-                      onmouseout: "this.style.backgroundColor='#6c757d'" %>
+                <td style="padding: 12px; text-align: center;">
+                  <%= link_to customer_url, target: "_blank", style: "color: #5C6AC4; text-decoration: none; display: inline-flex; align-items: center; padding: 4px 8px; border-radius: 4px; transition: background-color 0.2s;", onmouseover: "this.style.backgroundColor='#f1f2f4'", onmouseout: "this.style.backgroundColor=''" do %>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span style="font-size: 13px;">View</span>
+                  <% end %>
                 </td>
               </tr>
               <% if credit.error_message.present? %>
